@@ -1,0 +1,17 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Word report files (Do not push report docs)
+*.docx
+*.doc
+
+# Report generator script
+create_report_doc.py
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
