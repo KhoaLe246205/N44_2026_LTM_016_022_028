@@ -6,12 +6,12 @@
 
 ---
 
-### BẢNG PHÂN CÔNG NHIỆM VỤ THÀNH VIÊN NHÓM
-| STT | Họ và tên | Mã sinh viên | Vai trò & Phân công nhiệm vụ |
-| :---: | :--- | :---: | :--- |
-| 1 | **Lê Anh Khoa** | **106230016** | **Nhóm trưởng**: Thiết kế kiến trúc tổng thể; hiện thực hóa mô phỏng mạng không dây IEEE 802.11n và cơ chế định tuyến động AODV trên ns-3 (`ns3_sim/uav_relay_aodv.cc`); đo đếm số liệu thực nghiệm. |
-| 2 | **Huỳnh Ngọc Tịnh Phong** | **106230022** | **Thành viên**: Xây dựng không gian vật lý 3D Gazebo; thiết lập mô hình multi-vehicle PX4 SITL; xây dựng giải thuật điều khiển bay bám trung điểm động bằng giao thức MAVLink UDP (`px4_gazebo/px4_multi_vehicle.py`). |
-| 3 | **Ngô Quang Thế** | **106230028** | **Thành viên**: Phát triển Co-simulation Bridge trung chuyển dữ liệu tọa độ thời gian thực (`co_simulation/relay_network_bridge.py`); thiết kế giao diện Radar 2D (`co_simulation/live_visualizer.py`); phân tích và trực quan hóa dữ liệu biểu đồ. |
+### THÔNG TIN SINH VIÊN THỰC HIỆN
+| STT | Họ và tên | Mã sinh viên |
+| :---: | :--- | :---: |
+| 1 | **Lê Anh Khoa** | **106230016** |
+| 2 | **Huỳnh Ngọc Tịnh Phong** | **106230022** |
+| 3 | **Ngô Quang Thế** | **106230028** |
 
 ---
 
@@ -59,11 +59,11 @@ graph TD
     end
 
     GZ <--> PX4_SITL
-    PX4_SITL -->|Tọa độ thực thời gian thực| BR
-    BR -->|Đồng bộ vị trí WaypointMobility| NS3_Network
-    N0 -.->|d <= 300m: Trực tiếp 1 Hop (TTL=64)| N2
-    N0 ===>|d > 300m: Chuyển tiếp 2 Hops| N1
-    N1 ===>|Forward gói tin (TTL=63)| N2
+    PX4_SITL -->|"Tọa độ thực thời gian thực"| BR
+    BR -->|"Đồng bộ vị trí WaypointMobility"| NS3_Network
+    N0 -.->|"Cự ly <= 300m: Trực tiếp 1 Hop (TTL=64)"| N2
+    N0 ==>|"Cự ly > 300m: Chuyển tiếp 2 Hops"| N1
+    N1 ==>|"Forward gói tin (TTL=63)"| N2
 ```
 
 1. **Gazebo 3D:** Tái tạo không gian vật lý và khí động học của 2 quadcopter, giải bài toán va chạm, trọng lực và cung cấp dữ liệu định vị mặt đất trung thực.
