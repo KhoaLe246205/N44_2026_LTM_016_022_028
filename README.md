@@ -59,11 +59,11 @@ graph TD
     end
 
     GZ <--> PX4_SITL
-    PX4_SITL -->|"Tọa độ thực thời gian thực"| BR
-    BR -->|"Đồng bộ vị trí WaypointMobility"| NS3_Network
-    N0 -.->|"Cự ly <= 300m: Trực tiếp 1 Hop (TTL=64)"| N2
-    N0 ==>|"Cự ly > 300m: Chuyển tiếp 2 Hops"| N1
-    N1 ==>|"Forward gói tin (TTL=63)"| N2
+    PX4_SITL -->|"Tọa độ 3D<br/>thời gian thực"| BR
+    BR -->|"Đồng bộ vị trí<br/>WaypointMobility"| NS3_Network
+    N0 -.->|"Cự ly <= 300m:<br/>Trực tiếp 1 Hop (TTL=64)"| N2
+    N0 ==>|"Cự ly > 300m:<br/>Chuyển tiếp 2 Hops"| N1
+    N1 ==>|"Forward gói tin<br/>(TTL=63)"| N2
 ```
 
 1. **Gazebo 3D:** Tái tạo không gian vật lý và khí động học của 2 quadcopter, giải bài toán va chạm, trọng lực và cung cấp dữ liệu định vị mặt đất trung thực.
@@ -78,26 +78,26 @@ graph TD
 ```text
 .
 ├── co_simulation/
-│   ├── live_visualizer.py        # Màn hình Radar 2D hiển thị trực quan chuyển tiếp sóng thời gian thực
-│   ├── plot_results.py           # Phân tích dữ liệu thực nghiệm và xuất 4 biểu đồ hiệu năng chuẩn
-│   └── relay_network_bridge.py   # Cầu nối nhận telemetry PX4 qua UDP socket và map sang mạng ns-3
+│   ├── live_visualizer.py     # Radar 2D trực quan hóa chuyển tiếp sóng
+│   ├── plot_results.py        # Xử lý số liệu và xuất đồ thị hiệu năng
+│   └── relay_network_bridge.py # Cầu nối Telemetry PX4 sang mạng ns-3
 ├── ns3_sim/
-│   ├── run_ns3.sh                # Script tự động đồng bộ mã nguồn vào scratch và thực thi ns-3
-│   └── uav_relay_aodv.cc         # Mã nguồn C++ mô phỏng mạng Wi-Fi 802.11n, đo kiểm TTL & định tuyến AODV
+│   ├── run_ns3.sh             # Script nạp nguồn và thực thi ns-3
+│   └── uav_relay_aodv.cc      # Mô phỏng Wi-Fi 802.11n & định tuyến AODV
 ├── px4_gazebo/
-│   ├── launch_sitl_multi.sh      # Script khởi chạy multi-vehicle SITL trên Gazebo
-│   └── px4_multi_vehicle.py      # Điều khiển bay đa drone đồng thời qua giao thức MAVLink UDP
-├── results/                      # Dữ liệu đo kiểm thực nghiệm thu được từ quá trình chạy mô phỏng
-│   ├── ns3_uav_relay_metrics.csv # 118 bản ghi đo kiểm mạng ns-3 (PDR, Latency, Hops, Distance)
-│   ├── px4_flight_telemetry.csv  # Tọa độ bay 3D thực tế theo thời gian từ SITL
-│   ├── uav_relay_performance_charts.png # Đồ thị đánh giá hiệu năng 4 thành phần
-│   ├── uav_relay_animation.xml   # Tệp hoạt họa di động mở bằng phần mềm NetAnim
-│   ├── uav-relay-node-0-0.pcap   # Tệp bắt gói tin tại GCS (Node 0)
-│   ├── uav-relay-node-1-0.pcap   # Tệp bắt gói tin tại UAV 1 Relay (Node 1)
-│   └── uav-relay-node-2-0.pcap   # Tệp bắt gói tin tại UAV 2 Recon (Node 2)
-├── .gitignore                    # Bộ lọc tệp cấu hình và tệp rác sinh ra khi chạy code
-├── README.md                     # Tài liệu giới thiệu tổng quan và kết quả nghiên cứu đề tài
-└── requirements.txt              # Danh mục các gói thư viện Python phục vụ mô phỏng
+│   ├── launch_sitl_multi.sh   # Khởi chạy multi-vehicle SITL Gazebo
+│   └── px4_multi_vehicle.py   # Điều khiển bay đa UAV qua MAVLink UDP
+├── results/                   # Dữ liệu đo kiểm thực nghiệm thu được
+│   ├── ns3_uav_relay_metrics.csv # 118 bản ghi đo kiểm mạng ns-3
+│   ├── px4_flight_telemetry.csv  # Tọa độ bay 3D thực tế theo thời gian
+│   ├── uav_relay_performance_charts.png # Đồ thị hiệu năng 4 thành phần
+│   ├── uav_relay_animation.xml   # Tệp hoạt họa mở bằng NetAnim
+│   ├── uav-relay-node-0-0.pcap   # Bắt gói tin tại GCS (Node 0)
+│   ├── uav-relay-node-1-0.pcap   # Bắt gói tin tại UAV 1 Relay (Node 1)
+│   └── uav-relay-node-2-0.pcap   # Bắt gói tin tại UAV 2 Recon (Node 2)
+├── .gitignore                 # Bộ lọc tệp cấu hình và tệp tạm
+├── README.md                  # Báo cáo kỹ thuật tổng quan đề tài
+└── requirements.txt           # Danh mục thư viện Python cần thiết
 ```
 
 ---
