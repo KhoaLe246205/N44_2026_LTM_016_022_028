@@ -1,0 +1,23 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C/C++ compilation outputs
+*.o
+*.out
+*.obj
+*.exe
+
+# IDE & Editor settings
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Documentation generation & report files
+*.docx
+*.doc
+create_report_doc.py
