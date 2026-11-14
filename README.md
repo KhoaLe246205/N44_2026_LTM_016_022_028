@@ -55,8 +55,8 @@ Nhóm đề xuất giải pháp triển khai **UAV 1 (Relay Node)** đóng vai t
 2. **Pha 2 ($x_2 > 300\text{ m}$):** Đường truyền trực tiếp bị đứt. Giao thức định tuyến AODV tự động phát hiện mất kết nối và chuyển mạch sang tuyến $2\text{ chặng}$ thông qua UAV 1 ($\text{TTL} = 63$).
 
 <div align="center">
-  <img src="docs/images/hinh_2_2_chuyen_mach.png" alt="Cơ chế chuyển mạch gói tin 2 pha" width="850"/>
-  <p><em>Hình 1: Cơ chế phân luồng dữ liệu 2 pha: Truyền trực tiếp 1 chặng và Chuyển tiếp đa chặng qua UAV Relay</em></p>
+  <img src="docs/images/hinh_2_2_chuyen_mach.png" alt="Cơ chế chuyển mạch gói tin 2 pha" width="750"/>
+  <p><em>Hình 1: Cơ chế phân luồng dữ liệu 2 pha: Truyền trực tiếp 1 chặng và Chuyển tiếp đa chặng qua UAV Relay do nhóm vẽ</em></p>
 </div>
 
 ---
@@ -66,7 +66,7 @@ Nhóm đề xuất giải pháp triển khai **UAV 1 (Relay Node)** đóng vai t
 ### 2.1. Bài toán Tối ưu hóa Hình học Min-Max 3D Euclid
 Để tối ưu hóa đồng thời chất lượng kênh truyền của cả 2 chặng ($\text{GCS} \leftrightarrow \text{UAV 1}$ và $\text{UAV 1} \leftrightarrow \text{UAV 2}$), vị trí tọa độ của UAV 1 được giải quyết bằng bài toán tối ưu hóa Min-Max:
 
-$$\min_{x_1} \max \left\{ d_{01}(t),\ d_{12}(t) \right\}$$
+$$\min_{x_1} \max \left[ d_{01}(t),\ d_{12}(t) \right]$$
 
 Trong không gian ba chiều:
 - Trạm GCS đặt cố định tại mặt đất: $(x_0, y_0, z_0) = (0, 0, 0)$.
@@ -82,16 +82,16 @@ Nghiệm tối ưu đạt được khi $d_{01}(t) \approx d_{12}(t)$, dẫn đ�
 $$x_1^*(t) = \min\left( \frac{x_2(t)}{2},\ 250\text{ m} \right)$$
 
 <div align="center">
-  <img src="docs/images/hinh_3_1_minmax.png" alt="Mô hình tối ưu hóa Min-Max 3D" width="800"/>
-  <p><em>Hình 2: Mô hình tối ưu hóa cự ly không gian 3 chiều và vùng phủ sóng vô tuyến song hành</em></p>
+  <img src="docs/images/hinh_3_1_minmax.png" alt="Mô hình tối ưu hóa Min-Max 3D" width="750"/>
+  <p><em>Hình 2: Mô hình tối ưu hóa cự ly không gian 3 chiều và vùng phủ sóng vô tuyến song hành do nhóm vẽ</em></p>
 </div>
 
 ### 2.2. Máy trạng thái hữu hạn (FSM) và Quy trình Khám phá Tuyến AODV
 Quá trình chuyển tiếp mạng được quản lý bởi một máy trạng thái hữu hạn (Finite State Machine - FSM) bám sát theo chuẩn RFC 3561:
 
 <div align="center">
-  <img src="docs/images/hinh_3_3_fsm.png" alt="Máy trạng thái hữu hạn chuyển mạch định tuyến" width="750"/>
-  <p><em>Hình 3: Máy trạng thái hữu hạn quản trị vòng đời tuyến đường và chuyển mạch chặng</em></p>
+  <img src="docs/images/hinh_3_3_fsm.png" alt="Máy trạng thái hữu hạn chuyển mạch định tuyến" width="400"/>
+  <p><em>Hình 3: Máy trạng thái hữu hạn quản trị vòng đời tuyến đường và chuyển mạch chặng do nhóm vẽ</em></p>
 </div>
 
 - **Trạng thái 1 (Direct Mode):** Tuyến 1 chặng có sẵn trong Route Table. Dữ liệu UDP truyền thẳng, $\text{TTL} = 64$.
@@ -106,8 +106,8 @@ Quá trình chuyển tiếp mạng được quản lý bởi một máy trạng 
 Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Simulation) phân tán, tích hợp chặt chẽ giữa 4 phân hệ kỹ thuật:
 
 <div align="center">
-  <img src="docs/images/hinh_2_1_kien_truc.png" alt="Kiến trúc hệ thống đồng mô phỏng 4 phân hệ" width="900"/>
-  <p><em>Hình 4: Sơ đồ kiến trúc 4 phân hệ đồng mô phỏng: Gazebo 3D, PX4 SITL, Co-Sim Bridge và ns-3</em></p>
+  <img src="docs/images/hinh_2_1_kien_truc.png" alt="Kiến trúc hệ thống đồng mô phỏng 4 phân hệ" width="420"/>
+  <p><em>Hình 4: Sơ đồ kiến trúc 4 phân hệ đồng mô phỏng: Gazebo 3D, PX4 SITL, Co-Sim Bridge và ns-3 do nhóm vẽ</em></p>
 </div>
 
 1. **Phân hệ Khí động học & Môi trường 3D (Gazebo Classic 11):**
@@ -125,8 +125,15 @@ Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Sim
    - Ngăn xếp giao thức: Định tuyến Ad-hoc AODV (RFC 3561), tầng mạng IPv4 và luồng dữ liệu Telemetry UDP (kích thước gói $128\text{ Bytes}$, tần số $20\text{ Hz}$).
 
 <div align="center">
+  <img src="docs/images/hinh_4_1_flowchart_px4.png" alt="Lưu đồ thuật toán điều khiển PX4" width="370"/>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/images/hinh_4_2_flowchart_ns3.png" alt="Lưu đồ thuật toán mô phỏng ns-3" width="370"/>
+  <p><em>Hình 5: Lưu đồ thuật toán điều khiển bay PX4 (Trái) và Thuật toán mô phỏng mạng ns-3 (Phải) do nhóm vẽ</em></p>
+</div>
+
+<div align="center">
   <img src="docs/images/gazebo_3d_simulation.png" alt="Môi trường mô phỏng Gazebo 3D" width="800"/>
-  <p><em>Hình 5: Môi trường mô phỏng 3D thực tế trên Gazebo với 2 drone Iris cất cánh đồng loạt</em></p>
+  <p><em>Hình 6: Môi trường mô phỏng 3D thực tế trên Gazebo với 2 drone Iris (Ảnh chụp thực nghiệm từ hệ thống)</em></p>
 </div>
 
 ---
@@ -138,14 +145,17 @@ UAV_Relay_Project/
 ├── co_simulation/                     # Phân hệ Cầu nối & Xử lý Dữ liệu Đồng mô phỏng
 │   ├── live_visualizer.py             # Radar 2D HUD trực quan hóa chuyển mạch sóng
 │   ├── plot_results.py                # Xử lý số liệu đo kiểm và xuất đồ thị phân tích
-│   └── relay_network_bridge.py         # Socket UDP tiếp nhận MAVLink và đồng bộ vị trí
+│   └── relay_network_bridge.py        # Socket UDP tiếp nhận MAVLink và đồng bộ vị trí
 ├── docs/                              # Tài liệu kỹ thuật và sơ đồ hệ thống
-│   └── images/                        # Hình ảnh sơ đồ kỹ thuật và kết quả đo kiểm
-│       ├── gazebo_3d_simulation.png   # Ảnh chụp môi trường 3D Gazebo
+│   └── images/                        # Sơ đồ bản vẽ do nhóm thiết kế và ảnh chụp thực nghiệm
+│       ├── gazebo_3d_simulation.png   # Ảnh chụp môi trường 3D Gazebo thực nghiệm
 │       ├── hinh_2_1_kien_truc.png     # Sơ đồ kiến trúc đồng mô phỏng 4 phân hệ
 │       ├── hinh_2_2_chuyen_mach.png   # Sơ đồ cơ chế phân luồng dữ liệu 2 pha
 │       ├── hinh_3_1_minmax.png        # Mô hình tối ưu hình học Min-Max 3D Euclid
+│       ├── hinh_3_2_pipeline.png      # Pipeline xử lý dữ liệu và luồng gói tin
 │       ├── hinh_3_3_fsm.png           # Sơ đồ máy trạng thái hữu hạn (FSM)
+│       ├── hinh_4_1_flowchart_px4.png # Lưu đồ thuật toán điều khiển PX4
+│       ├── hinh_4_2_flowchart_ns3.png # Lưu đồ thuật toán mô phỏng ns-3
 │       ├── hinh_5_3_netanim_side_by_side.png # Hoạt họa NetAnim so sánh 1-hop vs 2-hop
 │       └── radar_relay_45s.png        # Giao diện Radar HUD tại giây thứ 45.0s
 ├── ns3_sim/                           # Phân hệ Mô phỏng Mạng ns-3
@@ -194,7 +204,7 @@ Số liệu được trích xuất trực tiếp từ tệp nhật ký thực ng
 
 <div align="center">
   <img src="results/uav_relay_performance_charts.png" alt="Biểu đồ hiệu năng 4 thành phần" width="900"/>
-  <p><em>Hình 6: Bộ đồ thị hiệu năng 4 thành phần: Không gian phủ sóng, Cự ly tương đối, Số chặng AODV, PDR và Độ trễ</em></p>
+  <p><em>Hình 7: Bộ đồ thị hiệu năng 4 thành phần: Không gian phủ sóng, Cự ly tương đối, Số chặng AODV, PDR và Độ trễ</em></p>
 </div>
 
 1. **Biểu đồ 1 — Không gian bố trí & Vùng phủ sóng Wi-Fi ($R = 300\text{ m}$):**
@@ -214,18 +224,18 @@ Số liệu được trích xuất trực tiếp từ tệp nhật ký thực ng
 ### 5.3. Bằng Chứng Thực Nghiệm Trực Quan Hóa (Radar HUD & NetAnim)
 
 <div align="center">
-  <img src="docs/images/radar_relay_45s.png" alt="Giao diện Radar 2D HUD tại giây 45s" width="750"/>
-  <p><em>Hình 7: Giao diện Radar 2D HUD thời gian thực tại giây 45.0s: Chuyển tiếp 2 Hops, PDR = 99.91%, Độ trễ = 0.34 ms</em></p>
+  <img src="docs/images/radar_relay_45s.png" alt="Giao diện Radar 2D HUD thực nghiệm" width="750"/>
+  <p><em>Hình 8: Giao diện Radar 2D HUD thời gian thực (Ảnh chụp màn hình thực nghiệm từ chương trình Python)</em></p>
 </div>
 
-Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động tại giây $45.0\text{ s}$:
-- Tọa độ UAV 2: $x_2 = 450.0\text{ m}$, cự ly tới GCS là $450.9\text{ m}$ (vượt xa ngưỡng $300\text{ m}$).
-- UAV 1 cơ động đến tọa độ chốt $x_1 = 225.0\text{ m}$ giữ cân bằng cự ly 2 chặng.
-- Trạng thái mạng: **CHUYEN TIEP RELAY (AODV 2-HOPS)** với **PDR = 99.91%** và **Latency = 0.34 ms**.
+Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thực nghiệm:
+- Tọa độ UAV 2 vượt mốc an toàn $300\text{ m}$.
+- UAV 1 cơ động giữ cân bằng khoảng cách 2 chặng.
+- Trạng thái mạng: **CHUYEN TIEP RELAY (AODV 2-HOPS)** thông suốt toàn bộ hành trình.
 
 <div align="center">
   <img src="docs/images/hinh_5_3_netanim_side_by_side.png" alt="Mô phỏng NetAnim so sánh trực tiếp và chuyển tiếp" width="850"/>
-  <p><em>Hình 8: Đối sánh sóng vô tuyến không gian trên NetAnim: (Trái) Truyền trực tiếp 1 chặng tại t = 15.91s — (Phải) Chuyển tiếp 2 chặng qua UAV 1 tại t = 45.03s</em></p>
+  <p><em>Hình 9: Đối sánh sóng vô tuyến không gian trên NetAnim: (Trái) Truyền trực tiếp 1 chặng tại t = 15.91s — (Phải) Chuyển tiếp 2 chặng qua UAV 1 tại t = 45.03s (Ảnh chụp thực nghiệm NetAnim)</em></p>
 </div>
 
 ---
