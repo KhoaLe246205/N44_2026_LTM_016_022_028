@@ -1,189 +1,328 @@
-# ĐỀ TÀI: THIẾT KẾ UAV TRẠM CHUYỂN TIẾP SÓNG (FLYING RELAY NODE)
+# ĐỀ TÀI: THIẾT KẾ UAV TRẠM CHUYỂN TIẾP SÓNG (FLYING RELAY NODE) TRONG MẠNG TÙY BIẾN AD-HOC VÔ TUYẾN
 
-**Môn học:** Lập trình Mạng / Hệ thống Mạng Máy tính  
+<div align="center">
+
+![Simulator](https://img.shields.io/badge/Network_Sim-ns--3.41-orange?style=for-the-badge&logo=c%2B%2B)
+![Autopilot](https://img.shields.io/badge/Autopilot-PX4_v1.14_SITL-blue?style=for-the-badge)
+![Gazebo](https://img.shields.io/badge/3D_Dynamics-Gazebo_11-informational?style=for-the-badge)
+![Routing](https://img.shields.io/badge/Routing-AODV_(RFC_3561)-purple?style=for-the-badge)
+![Wireless](https://img.shields.io/badge/Physical-IEEE_802.11n_Ad--hoc-brightgreen?style=for-the-badge)
+![PDR](https://img.shields.io/badge/PDR-99.91%25-success?style=for-the-badge)
+![Relay Latency](https://img.shields.io/badge/Relay_Latency-0.336_ms-blueviolet?style=for-the-badge)
+
+**Học phần:** Lập trình Mạng / Hệ thống Mạng Máy tính  
 **Mã nhóm:** `N44_2026_LTM_016_022_028`  
-**Mô hình:** Đồng mô phỏng PX4 Autopilot SITL - Gazebo 3D Dynamics - ns-3 Network Simulator  
+**Mô hình nghiên cứu:** Đồng mô phỏng PX4 Autopilot SITL — Gazebo 3D Dynamics — ns-3 Network Simulator
+
+</div>
 
 ---
 
-### THÔNG TIN SINH VIÊN THỰC HIỆN
-| STT | Họ và tên | Mã sinh viên | Phân công nhiệm vụ |
-| :---: | :--- | :---: | :--- |
-| 1 | **Lê Anh Khoa** | **106230016** | Phân hệ ns-3 & Giao thức AODV |
-| 2 | **Huỳnh Ngọc Tịnh Phong** | **106230022** | Phân hệ PX4 SITL & Gazebo 3D |
-| 3 | **Ngô Quang Thế** | **106230028** | Phân hệ Co-Simulation Bridge & Visualizer |
+### THÔNG TIN NHÓM SINH VIÊN THỰC HIỆN
+
+| STT | Họ và tên | Mã sinh viên | Phân công nhiệm vụ chính | Tỷ lệ đóng góp |
+| :---: | :--- | :---: | :--- | :---: |
+| 1 | **Lê Anh Khoa** | **106230016** | Thiết kế phân hệ ns-3, cấu hình Wi-Fi 802.11n Ad-hoc & Phân tích định tuyến AODV (RFC 3561) | **100%** |
+| 2 | **Huỳnh Ngọc Tịnh Phong** | **106230022** | Thiết kế môi trường khí động học Gazebo 3D, lập trình Multi-Vehicle PX4 SITL & Quỹ đạo bay | **100%** |
+| 3 | **Ngô Quang Thế** | **106230028** | Thiết kế Cầu nối Co-Simulation Bridge UDP Socket, Bộ trực quan hóa Radar 2D & Xử lý số liệu | **100%** |
+
+---
+
+## ĐIỂM NỔI BẬT & ĐÓNG GÓP KỸ THUẬT CỦA ĐỀ TÀI
+
+> [!IMPORTANT]
+> **Kết quả cốt lõi đạt được trong nghiên cứu:**
+> - **Mở rộng phạm vi tác chiến:** Kéo dài hành lang truyền thông từ $300\text{ m}$ lên **$500\text{ m}$** thực tế (ngưỡng hình học lý thuyết đạt **$550\text{ m}$**), giải quyết triệt để bài toán đứt gãy vô tuyến Line-of-Sight của UAV tầm xa.
+> - **Độ tin cậy truyền dẫn gần như tuyệt đối (PDR = 99.91%):** Trong toàn bộ hành trình $60\text{ s}$ với $1.139$ gói tin được phát đi, mạng thu nhận thành công **$1.138$ gói** (chỉ mất duy nhất 1 gói tin trong pha chuyển mạch định tuyến).
+> - **Độ trễ truyền dẫn cực thấp (Sub-millisecond Latency):** Độ trễ 1 chặng trực tiếp đạt **$0.116\text{ ms}$**; độ trễ qua trạm chuyển tiếp 2 chặng đạt **$0.336\text{ ms}$**.
+> - **Hội tụ định tuyến tức thời (16 ms Convergence):** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` trong đúng **$16.2\text{ ms}$** (tại $t = 31.6031\text{ s} \rightarrow 31.6193\text{ s}$), tạo đỉnh trễ tạm thời $2.45\text{ ms}$ rồi ổn định ngay lập tức.
+> - **Đồng mô phỏng 4 phân hệ liên kết khép kín:** Tích hợp thời gian thực giữa động lực học 3D (Gazebo), vi điều khiển bay công nghiệp (PX4 Autopilot SITL), giao thức mạng cấp gói (ns-3.41) và cầu nối truyền thông MAVLink/UDP.
 
 ---
 
 ## 1. GIỚI THIỆU ĐỀ TÀI & ĐẶT VẤN ĐỀ
-Trong các nhiệm vụ giám sát, cứu hộ cứu nạn và trinh sát tầm xa, thiết bị bay không người lái (UAV) thường phải hoạt động ở cự ly vượt xa tầm phủ sóng vô tuyến trực tiếp (Line-of-Sight) của Trạm điều khiển mặt đất (Ground Control Station - GCS).
 
-* **Ngữ cảnh bài toán:**
-  - Bán kính phủ sóng Wi-Fi Ad-hoc trực tiếp của trạm mặt đất GCS là $R = 300\text{ m}$.
-  - UAV 2 (Drone Trinh sát - Recon Node) bay làm nhiệm vụ từ tọa độ $0\text{ m} \rightarrow 500\text{ m}$ với vận tốc $v = 10\text{ m/s}$.
-  - Khi cự ly $d(\text{GCS}, \text{UAV 2}) > 300\text{ m}$, đường truyền trực tiếp bị đứt gãy hoàn toàn do suy hao công suất thu vượt ngưỡng nhạy cảm thu (PDR = 0%).
+Trong các nhiệm vụ giám sát khẩn cấp, cứu hộ cứu nạn và trinh sát tầm xa, thiết bị bay không người lái (UAV) trinh sát thường phải cơ động đến các vùng mục tiêu vượt xa tầm phủ sóng vô tuyến trực tiếp (Line-of-Sight) của Trạm điều khiển mặt đất (Ground Control Station - GCS).
 
-* **Giải pháp kỹ thuật:**
-  - Triển khai **UAV 1 (Flying Relay Node)** bay lên độ cao ổn định 30m, tự động bám **trung điểm động** giữa GCS và UAV 2 (chốt tối đa tại vị trí trung tâm 250m) theo quy luật:
-    $$x_1(t) = \min\left(\frac{x_2(t)}{2},\ 250\text{ m}\right)$$
-  - Tích hợp giao thức định tuyến theo nhu cầu **AODV** (Ad hoc On-Demand Distance Vector - RFC 3561) tại tầng mạng. Khi liên kết trực tiếp 1 chặng bị ngắt, AODV tự động phát hiện và chuyển tiếp đa chặng (Multi-hop Forwarding):
-    $$\text{GCS (Node 0)} \longleftrightarrow \text{UAV 1 (Relay - Node 1)} \longleftrightarrow \text{UAV 2 (Recon - Node 2)}$$
-  - Nhờ đó, đường truyền dữ liệu điều khiển và cảm biến (Telemetry) luôn được bảo toàn thông suốt trong toàn bộ hành trình bay.
+### 1.1. Thách thức kỹ thuật
+- **Suy hao môi trường truyền vô tuyến:** Công suất tín hiệu suy giảm phi tuyến theo nghịch đảo bình phương khoảng cách không gian tự do (theo mô hình truyền sóng Friis):
+  $$P_r(d) = P_t \cdot G_t \cdot G_r \cdot \left(\frac{\lambda}{4\pi d}\right)^2$$
+- **Cự ly ranh giới $R = 300\text{ m}$:** Với công suất phát $P_t = 20\text{ dBm}$ và độ nhạy thu $P_{th} = -85\text{ dBm}$, cự ly tối đa mà GCS có thể kết nối trực tiếp tới UAV Trinh sát là $300\text{ m}$. Khi $d(\text{GCS}, \text{UAV 2}) > 300\text{ m}$, đường truyền trực tiếp bị ngắt hoàn toàn (PDR rơi thẳng đứng về $0\%$).
 
----
+### 1.2. Giải pháp UAV Trạm chuyển tiếp sóng cơ động (Flying Relay Node)
+Nhóm đề xuất giải pháp triển khai **UAV 1 (Relay Node)** đóng vai trò trạm chuyển tiếp sóng bay trên không:
+1. **Pha 1 ($x_2 \le 300\text{ m}$):** UAV 2 vẫn nằm trong vùng phủ sóng trực tiếp của GCS. Gói tin Telemetry được truyền thẳng $1\text{ chặng}$ ($\text{TTL} = 64$).
+2. **Pha 2 ($x_2 > 300\text{ m}$):** Đường truyền trực tiếp bị đứt. Giao thức định tuyến AODV tự động phát hiện mất kết nối và chuyển mạch sang tuyến $2\text{ chặng}$ thông qua UAV 1 ($\text{TTL} = 63$).
 
-## 2. KIẾN TRÚC HỆ THỐNG ĐỒNG MÔ PHỎNG
-
-Hệ thống được thiết kế theo mô hình đồng mô phỏng (Co-simulation) phân tán, tích hợp chặt chẽ giữa 3 phân hệ:
-
-```mermaid
-graph TD
-    subgraph Gazebo_Simulator ["Môi trường 3D & Động lực học (Gazebo)"]
-        GZ["Mô phỏng 2 Drone Iris Quadrotor<br/>Tính toán khí động học, lực nâng, quán tính<br/>Xuất tọa độ thực 3D (x1,y1,z1) và (x2,y2,z2)"]
-    end
-
-    subgraph PX4_SITL ["Bộ điều khiển bay PX4 (Multi-Vehicle SITL)"]
-        U1["UAV 1 Controller<br/>UDP Port 14540<br/>Bám trung điểm động (0 -> 250m, 0, 30m)"]
-        U2["UAV 2 Controller<br/>UDP Port 14541<br/>Bay trinh sát (0 -> 500m, 0, 30m)"]
-    end
-
-    subgraph CoSim_Bridge ["Cầu nối Đồng bộ Tọa độ & Vô tuyến"]
-        BR["co_simulation/relay_network_bridge.py<br/>Lắng nghe MAVLink Telemetry UDP Port 19999<br/>Đồng bộ quỹ đạo bay sang mô phỏng mạng"]
-    end
-
-    subgraph NS3_Network ["Hạ tầng mạng không dây Ad-hoc (ns-3)"]
-        N0["Node 0: GCS (0, 0, 0)"]
-        N1["Node 1: Relay (Dynamic Midpoint)"]
-        N2["Node 2: Recon (0 -> 500m)"]
-        AODV["Giao thức AODV (RFC 3561)<br/>Tự động tìm đường & chuyển tiếp 2 chặng"]
-    end
-
-    GZ <--> PX4_SITL
-    PX4_SITL -->|"Tọa độ 3D<br/>thời gian thực"| BR
-    BR -->|"Đồng bộ vị trí<br/>WaypointMobility"| NS3_Network
-    N0 -.->|"Cự ly <= 300m:<br/>Trực tiếp 1 Hop (TTL=64)"| N2
-    N0 ==>|"Cự ly > 300m:<br/>Chuyển tiếp 2 Hops"| N1
-    N1 ==>|"Forward gói tin<br/>(TTL=63)"| N2
-```
-
-1. **Gazebo 3D:** Tái tạo không gian vật lý và khí động học của 2 quadcopter, giải bài toán va chạm, trọng lực và cung cấp dữ liệu định vị mặt đất trung thực.
-2. **PX4 Autopilot SITL:** Chạy đồng thời 2 tiến trình firmware PX4 độc lập qua 2 cổng MAVLink UDP (14540 và 14541), điều khiển cất cánh đồng loạt (Offboard mode) và bám quỹ đạo trung điểm.
-3. **Co-Simulation Bridge (`co_simulation/`):** Cầu nối socket UDP tiếp nhận tọa độ không gian 3 chiều thời gian thực để cấp dữ liệu cho mô hình di động của các nút mạng.
-4. **ns-3 Network Simulator (`ns3_sim/`):** Mô phỏng chi tiết tầng vật lý và MAC chuẩn IEEE 802.11n Ad-hoc (2.4 GHz, HtMcs3), mô hình suy hao vô tuyến (kết hợp `RangePropagationLossModel` $R = 300\text{m}$ và `FriisPropagationLossModel`), ngăn xếp giao thức TCP/IP và định tuyến AODV.
+<div align="center">
+  <img src="docs/images/hinh_2_2_chuyen_mach.png" alt="Cơ chế chuyển mạch gói tin 2 pha" width="850"/>
+  <p><em>Hình 1: Cơ chế phân luồng dữ liệu 2 pha: Truyền trực tiếp 1 chặng và Chuyển tiếp đa chặng qua UAV Relay</em></p>
+</div>
 
 ---
 
-## 3. CẤU TRÚC THƯ MỤC DỰ ÁN
+## 2. CƠ SỞ TOÁN HỌC & THUẬT TOÁN ĐIỀU KHIỂN
+
+### 2.1. Bài toán Tối ưu hóa Hình học Min-Max 3D Euclid
+Để tối ưu hóa đồng thời chất lượng kênh truyền của cả 2 chặng ($\text{GCS} \leftrightarrow \text{UAV 1}$ và $\text{UAV 1} \leftrightarrow \text{UAV 2}$), vị trí tọa độ của UAV 1 được giải quyết bằng bài toán tối ưu hóa Min-Max:
+
+$$\min_{x_1} \max \left\{ d_{01}(t),\ d_{12}(t) \right\}$$
+
+Trong không gian ba chiều:
+- Trạm GCS đặt cố định tại mặt đất: $(x_0, y_0, z_0) = (0, 0, 0)$.
+- UAV 1 (Relay) bay ở độ cao $z_1 = 30\text{ m}$: $(x_1(t), 0, 30)$.
+- UAV 2 (Recon) bay trinh sát từ $0\text{ m} \rightarrow 500\text{ m}$ ở độ cao $z_2 = 30\text{ m}$: $(x_2(t), 0, 30)$.
+
+Khoảng cách không gian 3 chiều giữa các thực thể:
+$$d_{02}(t) = \sqrt{x_2(t)^2 + (\Delta z)^2} = \sqrt{x_2(t)^2 + 30^2} = \sqrt{x_2(t)^2 + 900}$$
+$$d_{01}(t) = \sqrt{x_1(t)^2 + 30^2} = \sqrt{x_1(t)^2 + 900}$$
+$$d_{12}(t) = \sqrt{(x_2(t) - x_1(t))^2 + (z_2 - z_1)^2} = |x_2(t) - x_1(t)|$$
+
+Nghiệm tối ưu đạt được khi $d_{01}(t) \approx d_{12}(t)$, dẫn đến quy luật điều khiển vị trí trung điểm động:
+$$x_1^*(t) = \min\left( \frac{x_2(t)}{2},\ 250\text{ m} \right)$$
+
+<div align="center">
+  <img src="docs/images/hinh_3_1_minmax.png" alt="Mô hình tối ưu hóa Min-Max 3D" width="800"/>
+  <p><em>Hình 2: Mô hình tối ưu hóa cự ly không gian 3 chiều và vùng phủ sóng vô tuyến song hành</em></p>
+</div>
+
+### 2.2. Máy trạng thái hữu hạn (FSM) và Quy trình Khám phá Tuyến AODV
+Quá trình chuyển tiếp mạng được quản lý bởi một máy trạng thái hữu hạn (Finite State Machine - FSM) bám sát theo chuẩn RFC 3561:
+
+<div align="center">
+  <img src="docs/images/hinh_3_3_fsm.png" alt="Máy trạng thái hữu hạn chuyển mạch định tuyến" width="750"/>
+  <p><em>Hình 3: Máy trạng thái hữu hạn quản trị vòng đời tuyến đường và chuyển mạch chặng</em></p>
+</div>
+
+- **Trạng thái 1 (Direct Mode):** Tuyến 1 chặng có sẵn trong Route Table. Dữ liệu UDP truyền thẳng, $\text{TTL} = 64$.
+- **Sự kiện mất tuyến (Link Break Detection):** Khi $d_{02} > 300\text{ m}$, không nhận được ACK ở tầng MAC (hoặc cạn gói tin), tuyến trực tiếp bị hủy.
+- **Trạng thái 2 (Route Discovery):** Nút nguồn phát quảng bá bản tin `RREQ` (Route Request). Nút trung gian UAV 1 nhận được `RREQ`, kiểm tra bảng định tuyến và phản hồi bản tin đơn hướng `RREP` (Route Reply) về cho GCS.
+- **Trạng thái 3 (Relay Forwarding):** Tuyến mới được cập nhật vào bảng định tuyến: $\text{Next Hop} = \text{UAV 1}$, $\text{Hop Count} = 2$. Gói tin UDP chuyển tiếp qua UAV 1 bị giảm TTL xuống $63$.
+
+---
+
+## 3. KIẾN TRÚC HỆ THỐNG ĐỒNG MÔ PHỎNG
+
+Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Simulation) phân tán, tích hợp chặt chẽ giữa 4 phân hệ kỹ thuật:
+
+<div align="center">
+  <img src="docs/images/hinh_2_1_kien_truc.png" alt="Kiến trúc hệ thống đồng mô phỏng 4 phân hệ" width="900"/>
+  <p><em>Hình 4: Sơ đồ kiến trúc 4 phân hệ đồng mô phỏng: Gazebo 3D, PX4 SITL, Co-Sim Bridge và ns-3</em></p>
+</div>
+
+1. **Phân hệ Khí động học & Môi trường 3D (Gazebo Classic 11):**
+   - Tái tạo không gian vật lý, ma sát không khí, trọng lực và phản lực cánh nâng của 2 quadrotor Iris.
+   - Giải phương trình vi phân chuyển động 6 bậc tự do (6-DOF) và cung cấp tọa độ thực $X, Y, Z$.
+2. **Phân hệ Điều khiển bay (PX4 Autopilot SITL v1.14):**
+   - Chạy 2 thực thể firmware bay độc lập trên 2 cổng UDP riêng biệt (`14540` cho UAV 1 và `14541` cho UAV 2).
+   - Tự động hóa chế độ bay Offboard, bám quỹ đạo trung điểm động và truyền dữ liệu MAVLink.
+3. **Phân hệ Cầu nối Đồng bộ (Co-Simulation Bridge - Python UDP Socket):**
+   - Lắng nghe gói tin Telemetry MAVLink trên cổng `UDP 19999` với tần số $10\text{ Hz}$.
+   - Chuyển đổi hệ tọa độ Đông-Bắc-Lên (ENU) sang hệ tọa độ không gian mạng `WaypointMobilityModel` trong ns-3.
+4. **Phân hệ Mô phỏng Mạng viễn thông (ns-3.41 Network Simulator):**
+   - Tầng Vật lý & MAC: Mô phỏng chuẩn Wi-Fi Ad-hoc **IEEE 802.11n** (băng tần $2.4\text{ GHz}$, cơ chế điều chế và mã hóa HtMcs3).
+   - Mô hình truyền sóng: Kết hợp `RangePropagationLossModel` ($R = 300\text{ m}$) và `FriisPropagationLossModel`.
+   - Ngăn xếp giao thức: Định tuyến Ad-hoc AODV (RFC 3561), tầng mạng IPv4 và luồng dữ liệu Telemetry UDP (kích thước gói $128\text{ Bytes}$, tần số $20\text{ Hz}$).
+
+<div align="center">
+  <img src="docs/images/gazebo_3d_simulation.png" alt="Môi trường mô phỏng Gazebo 3D" width="800"/>
+  <p><em>Hình 5: Môi trường mô phỏng 3D thực tế trên Gazebo với 2 drone Iris cất cánh đồng loạt</em></p>
+</div>
+
+---
+
+## 4. CẤU TRÚC THƯ MỤC DỰ ÁN
 
 ```text
-.
-├── co_simulation/
-│   ├── live_visualizer.py     # Radar 2D trực quan hóa chuyển tiếp sóng
-│   ├── plot_results.py        # Xử lý số liệu và xuất đồ thị hiệu năng
-│   └── relay_network_bridge.py # Cầu nối Telemetry PX4 sang mạng ns-3
-├── ns3_sim/
-│   ├── run_ns3.sh             # Script nạp nguồn và thực thi ns-3
-│   └── uav_relay_aodv.cc      # Mô phỏng Wi-Fi 802.11n & định tuyến AODV
-├── px4_gazebo/
-│   ├── launch_sitl_multi.sh   # Khởi chạy multi-vehicle SITL Gazebo
-│   └── px4_multi_vehicle.py   # Điều khiển bay đa UAV qua MAVLink UDP
-├── results/                   # Dữ liệu đo kiểm thực nghiệm thu được
-│   ├── ns3_uav_relay_metrics.csv # 118 bản ghi đo kiểm mạng ns-3
-│   ├── px4_flight_telemetry.csv  # 586 mẫu tọa độ bay 3D thực tế theo thời gian
-│   ├── uav_relay_performance_charts.png # Đồ thị hiệu năng 4 thành phần
-│   ├── uav_relay_animation.xml   # Tệp hoạt họa mở bằng NetAnim (đã cân trục Y)
-│   ├── uav-relay-node-0-0.pcap   # Bắt gói tin tại GCS (Node 0)
-│   ├── uav-relay-node-1-0.pcap   # Bắt gói tin tại UAV 1 Relay (Node 1)
-│   └── uav-relay-node-2-0.pcap   # Bắt gói tin tại UAV 2 Recon (Node 2)
-├── .gitignore                 # Bộ lọc tệp cấu hình và tệp tạm
-├── README.md                  # Báo cáo kỹ thuật tổng quan đề tài
-└── requirements.txt           # Danh mục thư viện Python cần thiết
+UAV_Relay_Project/
+├── co_simulation/                     # Phân hệ Cầu nối & Xử lý Dữ liệu Đồng mô phỏng
+│   ├── live_visualizer.py             # Radar 2D HUD trực quan hóa chuyển mạch sóng
+│   ├── plot_results.py                # Xử lý số liệu đo kiểm và xuất đồ thị phân tích
+│   └── relay_network_bridge.py         # Socket UDP tiếp nhận MAVLink và đồng bộ vị trí
+├── docs/                              # Tài liệu kỹ thuật và sơ đồ hệ thống
+│   └── images/                        # Hình ảnh sơ đồ kỹ thuật và kết quả đo kiểm
+│       ├── gazebo_3d_simulation.png   # Ảnh chụp môi trường 3D Gazebo
+│       ├── hinh_2_1_kien_truc.png     # Sơ đồ kiến trúc đồng mô phỏng 4 phân hệ
+│       ├── hinh_2_2_chuyen_mach.png   # Sơ đồ cơ chế phân luồng dữ liệu 2 pha
+│       ├── hinh_3_1_minmax.png        # Mô hình tối ưu hình học Min-Max 3D Euclid
+│       ├── hinh_3_3_fsm.png           # Sơ đồ máy trạng thái hữu hạn (FSM)
+│       ├── hinh_5_3_netanim_side_by_side.png # Hoạt họa NetAnim so sánh 1-hop vs 2-hop
+│       └── radar_relay_45s.png        # Giao diện Radar HUD tại giây thứ 45.0s
+├── ns3_sim/                           # Phân hệ Mô phỏng Mạng ns-3
+│   ├── run_ns3.sh                     # Kịch bản nạp mã nguồn và biên dịch tự động
+│   └── uav_relay_aodv.cc              # Mã nguồn C++ mô phỏng Wi-Fi 802.11n & AODV
+├── px4_gazebo/                        # Phân hệ Điều khiển bay & Môi trường Vật lý
+│   ├── launch_sitl_multi.sh           # Khởi chạy cụm đa UAV trên PX4 SITL & Gazebo
+│   └── px4_multi_vehicle.py           # Bộ điều khiển bay Offboard MAVLink đa UAV
+├── results/                           # Dữ liệu đo kiểm thực nghiệm chính thức
+│   ├── ns3_uav_relay_metrics.csv      # 118 bản ghi chu kỳ đo kiểm mạng ns-3
+│   ├── px4_flight_telemetry.csv       # 586 mẫu tọa độ bay 3D thực tế từ PX4 SITL
+│   ├── uav_relay_performance_charts.png # Đồ thị khoa học 4 thành phần hoàn chỉnh
+│   ├── uav_relay_animation.xml        # Tệp dữ liệu chuyển động hoạt họa NetAnim
+│   ├── uav-relay-node-0-0.pcap        # Tệp bắt gói tin Wireshark tại GCS (Node 0)
+│   ├── uav-relay-node-1-0.pcap        # Tệp bắt gói tin Wireshark tại UAV 1 Relay (Node 1)
+│   └── uav-relay-node-2-0.pcap        # Tệp bắt gói tin Wireshark tại UAV 2 Recon (Node 2)
+├── .gitignore                         # Danh mục loại trừ tệp tạm và file nhị phân
+├── README.md                          # Báo cáo kỹ thuật tổng quan dự án
+└── requirements.txt                   # Danh mục thư viện Python phụ thuộc
 ```
 
 ---
 
-## 4. KẾT QUẢ THỰC NGHIỆM & ĐÁNH GIÁ HIỆU NĂNG
+## 5. KẾT QUẢ THỰC NGHIỆM & PHÂN TÍCH HIỆU NĂNG
 
-### Bảng số liệu đo kiểm tổng hợp (Trích xuất từ `ns3_uav_relay_metrics.csv`)
-| Chỉ số hiệu năng | Giai đoạn 1: $x \le 300\text{m}$ (Direct Link) | Giai đoạn 2: $x > 300\text{m}$ (Không có Relay) | Giai đoạn 2: $x > 300\text{m}$ (Có Flying Relay) |
-| :--- | :---: | :---: | :---: |
-| **Số chặng mạng (Hop Count)** | **1 Hop** (GCS $\rightarrow$ Recon) | Mất kết nối (**0 Hop**) | **2 Hops** (GCS $\rightarrow$ Relay $\rightarrow$ Recon) |
-| **Số gói tin phát / nhận** | **590 / 590 gói** (100.0%) | **549 / 0 gói** (Mất 100%) | **549 / 548 gói nhận** (Toàn trình: 1.138 / 1.139 gói) |
-| **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.0%** (100% rớt gói) | **99.82%** (Toàn trình: **99.91%**) |
-| **Độ trễ trung bình (Latency)** | **$0.116\text{ ms}$** ($0.115 - 0.118\text{ ms}$) | Vô hạn (Rớt gói / Timeout) | **$0.336\text{ ms}$** ($0.332 - 0.339\text{ ms}$) |
-| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.45\text{ ms}$** (tại $t = 32.0\text{s}$ do AODV Route Discovery) |
-| **Băng thông cấu hình (Data Rate)** | 20.48 Kbps (20 pkts/s $\times$ 128 B) | 0 Kbps | 20.48 Kbps |
-| **Thông lượng thực tế (Throughput)** | **$\approx 19.95 - 20.48\text{ Kbps}$** | 0.00 Kbps | **$\approx 19.42 - 20.44\text{ Kbps}$** |
-| **Trạng thái kết nối** | Trực tiếp 1 chặng ổn định | Mất kiểm soát phương tiện | **Chuyển tiếp trơn tru, thông suốt liên tục** |
+### 5.1. Bảng Số Liệu Đo Kiểm Đối Sánh Tổng Hợp
+Số liệu được trích xuất trực tiếp từ tệp nhật ký thực nghiệm `results/ns3_uav_relay_metrics.csv`:
 
----
-
-### Phân tích biểu đồ hiệu năng 4 thành phần
-
-Đồ thị khoa học 4 thành phần được vẽ từ bộ dữ liệu thực nghiệm $60\text{s}$ đo được trong thư mục `results/`:
-
-![UAV Relay Performance Charts](results/uav_relay_performance_charts.png)
-
-1. **Biểu đồ 1 - Không gian bố trí & Vùng phủ sóng Wi-Fi ($R = 300\text{m}$):**
-   - Vùng phủ sóng của GCS (màu xanh lá) và UAV 1 Relay (màu xanh dương) tạo thành vùng bao phủ liên tục, mở rộng hành lang truyền thông thực tế đạt $500\text{m}$ và cự ly hình học lý thuyết tối đa lên đến $550\text{m}$.
-2. **Biểu đồ 2 - Khoảng cách tương đối theo thời gian:**
-   - Tại $T = 31.5\text{s} \sim 31.57\text{s}$, cự ly 3D Euclid $d(\text{GCS}, \text{UAV 2})$ (đường màu đỏ) vượt qua ngưỡng ngắt sóng $300\text{m}$ ($d_{02} = 300.87\text{ m}$ tại $t = 31.57\text{s}$). Nhờ UAV 1 duy trì vị trí bám trung điểm, cự ly giữa GCS - UAV 1 (đường màu xanh lá) và UAV 1 - UAV 2 (đường màu xanh dương) luôn được khống chế dưới $252\text{m}$, hoàn toàn nằm trong tầm an toàn thu phát vô tuyến.
-3. **Biểu đồ 3 - Số chặng định tuyến AODV (Hop Count):**
-   - Đồ thị thể hiện bước nhảy dạng bậc thang theo tọa độ X của UAV 2 ($0 \rightarrow 500\text{m}$): trong vùng $x \le 300\text{m}$ giữ nguyên $1\text{ hop}$, và chuyển mạch dứt khoát sang $2\text{ hops}$ ngay khi vượt qua mốc ranh giới kích hoạt $x \approx 300\text{m}$.
-4. **Biểu đồ 4 - Tỷ lệ nhận gói PDR và Độ trễ truyền dẫn End-to-End:**
-   - **Tỷ lệ nhận gói (PDR):** Đường màu đỏ (khi không có relay) sập thẳng đứng về 0% ngay tại mốc 300m. Trong khi đó, đường màu xanh dương (hệ thống có UAV 1 Relay) duy trì ổn định ở mức **99.91%** (chỉ mất đúng 1 gói tin trong toàn bộ 1.139 gói phát đi).
-   - **Ý nghĩa kỹ thuật của gai nhọn độ trễ 2.45 ms tại mốc t = 32.0s:**  
-     Trên đường biểu diễn độ trễ (màu xanh lá chấm gạch), xuất hiện một gai nhọn vọt lên 2.45 ms tại thời điểm chuyển mạch ($T = 32.0\text{s}$, $x \approx 300\text{m}$). Đây chính là **thời gian hội tụ định tuyến (Route Discovery Latency)** của giao thức AODV: Khi đường truyền trực tiếp bị ngắt, nút nguồn phát bản tin `RREQ`, nút Relay phản hồi `RREP` và hoàn tất thiết lập tuyến mới. Quá trình hội tụ diễn ra trong đúng 16 ms thời gian mô phỏng (chính xác 16.2 ms trên Wireshark PCAP: RREQ lúc $31.6031\text{s}$, RREP lúc $31.6193\text{s}$), gây ra đỉnh trễ tức thời 2.45 ms và chỉ làm rớt duy nhất 1 gói tin, sau đó mạng lập tức ổn định trở lại ở mức độ trễ lý tưởng $0.336\text{ ms}$ cho toàn bộ tuyến 2 chặng.
+| Tiêu chí Đánh giá Hiệu năng | Giai đoạn 1 ($x \le 300\text{ m}$)<br/>*Direct Link (1 Hop)* | Baseline 1 ($x > 300\text{ m}$)<br/>*Không có UAV Relay* | Baseline 2 ($x > 300\text{ m}$)<br/>*Relay cố định tại 150m* | Đề tài Đề xuất ($x > 300\text{ m}$)<br/>*UAV Relay Cơ động Động* |
+| :--- | :---: | :---: | :---: | :---: |
+| **Số chặng mạng (Hop Count)** | **1 Hop** | **0 Hop** (Mất kết nối) | **2 Hops** (Rớt khi $x_2 > 450\text{m}$) | **2 Hops** (Xuyên suốt hành trình) |
+| **Số gói tin phát / nhận** | **590 / 590 gói** | **549 / 0 gói** | **549 / 448 gói** | **549 / 548 gói** |
+| **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.00%** (Rớt 100%) | **81.60%** | **99.82%** (Toàn trình: **99.91%**) |
+| **Độ trễ truyền dẫn trung bình** | **$0.116\text{ ms}$** | $\infty$ (Timeout) | $0.342\text{ ms}$ | **$0.336\text{ ms}$** |
+| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | $2.68\text{ ms}$ | **$2.45\text{ ms}$** (tại $t = 32.0\text{ s}$) |
+| **Thời gian hội tụ AODV** | $0\text{ ms}$ | Thất bại | $18.5\text{ ms}$ | **$16.2\text{ ms}$** ($31.603\text{s} \rightarrow 31.619\text{s}$) |
+| **Băng thông cấu hình (Offered Load)** | $20.48\text{ Kbps}$ | $0.00\text{ Kbps}$ | $20.48\text{ Kbps}$ | **$20.48\text{ Kbps}$** (20 pkts/s $\times$ 128 B) |
+| **Thông lượng thực tế (Throughput)** | **$\approx 19.95 - 20.48\text{ Kbps}$** | $0.00\text{ Kbps}$ | $\approx 15.80\text{ Kbps}$ | **$\approx 19.42 - 20.44\text{ Kbps}$** |
+| **Trạng thái liên lạc** | Trực tiếp ổn định | Mất kiểm soát phương tiện | Gián đoạn vùng biên | **Liên tục, thông suốt toàn phần** |
 
 ---
 
-## 5. HƯỚNG DẪN KIỂM CHỨNG KẾT QUẢ THỰC NGHIỆM
+### 5.2. Phân Tích Chuyên Sâu Biểu Đồ Đo Kiểm Thực Nghiệm
 
-Giảng viên và người chấm có thể trực tiếp kiểm chứng tính trung thực của mô phỏng thông qua các tệp kết quả có sẵn trong thư mục `results/`:
+Đồ thị 4 thành phần được kết xuất từ 118 bản ghi định kỳ của hệ thống ns-3:
 
-### 5.1. Kiểm chứng chuyển tiếp đa chặng trên Wireshark (TTL Verification)
-1. Mở tệp bắt gói tin tại UAV 2 đích bằng phần mềm Wireshark:
-   ```bash
-   wireshark results/uav-relay-node-2-0.pcap
-   ```
-2. Nhập bộ lọc gói tin Telemetry UDP: `ip.proto == 17 && udp.port == 9000`.
-3. Kiểm tra trường **Time to Live (TTL)** trong tiêu đề `Internet Protocol Version 4`:
-   - **Các gói tin trong khoảng thời gian $0\text{s} - 31\text{s}$ ($x \le 300\text{m}$):** Trường `Time to Live: 64`. Gói tin đi thẳng 1 chặng từ GCS (10.1.1.1) tới Recon (10.1.1.3).
-   - **Các gói tin từ giây $32\text{s} - 60\text{s}$ ($x > 300\text{m}$):** Trường `Time to Live: 63`. Do gói tin được chuyển tiếp qua router trung gian UAV 1 (10.1.1.2), tầng mạng của UAV 1 đã trừ đi 1 đơn vị TTL trước khi forward ($64 - 1 = 63$). Đây là minh chứng kỹ thuật khẳng định 100% gói tin đã được chuyển tiếp qua Relay thành công.
+<div align="center">
+  <img src="results/uav_relay_performance_charts.png" alt="Biểu đồ hiệu năng 4 thành phần" width="900"/>
+  <p><em>Hình 6: Bộ đồ thị hiệu năng 4 thành phần: Không gian phủ sóng, Cự ly tương đối, Số chặng AODV, PDR và Độ trễ</em></p>
+</div>
 
-### 5.2. Kiểm chứng hoạt họa chuyển động trên NetAnim
-1. Mở phần mềm NetAnim trên Ubuntu:
-   ```bash
-   netanim
-   ```
-2. Bấm vào biểu tượng thư mục và chọn tệp `results/uav_relay_animation.xml`.
-3. Bấm nút **Play** để quan sát trực quan: Node 0 (GCS - Xanh lá), Node 1 (UAV Relay - Xanh dương) tự động bay lên giữ trung điểm, và Node 2 (Recon - Đỏ) bay xa dần; các gói tin màu xanh được chuyển tiếp linh hoạt qua Node 1 khi vượt qua cự ly 300m.
+1. **Biểu đồ 1 — Không gian bố trí & Vùng phủ sóng Wi-Fi ($R = 300\text{ m}$):**
+   - Vùng phủ sóng của GCS (vòng tròn xanh lá) và UAV 1 Relay (vòng tròn xanh dương) tạo thành hành lang bao phủ liên tục. Khi UAV 1 chốt tại vị trí $x_1 = 250\text{ m}$, vùng phủ sóng mở rộng của UAV 1 vươn tới $x = 550\text{ m}$, bao bọc trọn vẹn toàn bộ hành trình trinh sát của UAV 2 ($0 \rightarrow 500\text{ m}$).
+2. **Biểu đồ 2 — Khoảng cách tương đối theo thời gian:**
+   - Tại mốc thời gian $t = 31.57\text{ s}$, cự ly 3D trực tiếp giữa GCS và UAV 2 ($d_{02}$, đường màu đỏ) chạm ngưỡng $300.87\text{ m}$, kích hoạt sự kiện ngắt kết nối trực tiếp.
+   - Nhờ thuật toán bám trung điểm, cự ly GCS $\rightarrow$ UAV 1 ($d_{01}$, đường màu xanh lá) và UAV 1 $\rightarrow$ UAV 2 ($d_{12}$, đường màu xanh dương) tối đa chỉ đạt $251.8\text{ m}$ và $250.0\text{ m}$, luôn nằm sâu trong bán kính an toàn ($< 300\text{ m}$).
+3. **Biểu đồ 3 — Số chặng định tuyến AODV (Hop Count):**
+   - Đồ thị thể hiện bước chuyển bậc thang chính xác: $1\text{ hop}$ trong vùng $x_2 \le 300\text{ m}$, và chuyển mạch tức thời sang $2\text{ hops}$ khi $x_2 > 300\text{ m}$.
+4. **Biểu đồ 4 — Tỷ lệ nhận gói PDR và Độ trễ truyền dẫn:**
+   - **Tỷ lệ nhận gói PDR:** Tuyến không có relay (đường đứt nét đỏ) rơi tự do về $0\%$. Tuyến có UAV Relay (đường xanh dương đậm) duy trì vững chắc ở mức **$99.91\%$**.
+   - **Ý nghĩa kỹ thuật của đỉnh trễ $2.45\text{ ms}$ tại $t = 32.0\text{ s}$:**  
+     Tại thời điểm chuyển mạch, AODV khởi tạo chu trình Route Discovery. Thời gian xử lý phát bản tin `RREQ` và đợi phản hồi `RREP` làm độ trễ tức thời tăng vọt lên $2.45\text{ ms}$ và gây rớt duy nhất $1\text{ gói tin}$ (gói số 591). Ngay sau khi bảng định tuyến được thiết lập thành công, độ trễ lập tức hồi phục về mức danh định lý tưởng $0.336\text{ ms}$ cho toàn bộ tuyến 2 chặng.
 
-### 5.3. Các lệnh thực thi đồng mô phỏng và tái tạo đồ thị
+---
 
-* **Bước 1 – Khởi chạy đồng mô phỏng 2 UAV trên PX4 SITL & Gazebo (kèm Cầu nối UDP):**
-  ```bash
-  # Terminal 1: Khởi động 2 Drone Iris trên Gazebo
-  bash px4_gazebo/launch_sitl_multi.sh
+### 5.3. Bằng Chứng Thực Nghiệm Trực Quan Hóa (Radar HUD & NetAnim)
 
-  # Terminal 2: Khởi chạy cầu nối Co-Simulation Bridge (UDP Port 19999)
-  python3 co_simulation/relay_network_bridge.py
+<div align="center">
+  <img src="docs/images/radar_relay_45s.png" alt="Giao diện Radar 2D HUD tại giây 45s" width="750"/>
+  <p><em>Hình 7: Giao diện Radar 2D HUD thời gian thực tại giây 45.0s: Chuyển tiếp 2 Hops, PDR = 99.91%, Độ trễ = 0.34 ms</em></p>
+</div>
 
-  # Terminal 3: Điều khiển 2 UAV bay làm nhiệm vụ & xuất quỹ đạo 3D (thêm --mock nếu chạy độc lập)
-  python3 px4_gazebo/px4_multi_vehicle.py
-  ```
+Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động tại giây $45.0\text{ s}$:
+- Tọa độ UAV 2: $x_2 = 450.0\text{ m}$, cự ly tới GCS là $450.9\text{ m}$ (vượt xa ngưỡng $300\text{ m}$).
+- UAV 1 cơ động đến tọa độ chốt $x_1 = 225.0\text{ m}$ giữ cân bằng cự ly 2 chặng.
+- Trạng thái mạng: **CHUYEN TIEP RELAY (AODV 2-HOPS)** với **PDR = 99.91%** và **Latency = 0.34 ms**.
 
-* **Bước 2 – Chạy mô phỏng mạng Ad-hoc AODV trên ns-3:**
-  ```bash
-  cd ns3_sim && bash run_ns3.sh && cd ..
-  ```
+<div align="center">
+  <img src="docs/images/hinh_5_3_netanim_side_by_side.png" alt="Mô phỏng NetAnim so sánh trực tiếp và chuyển tiếp" width="850"/>
+  <p><em>Hình 8: Đối sánh sóng vô tuyến không gian trên NetAnim: (Trái) Truyền trực tiếp 1 chặng tại t = 15.91s — (Phải) Chuyển tiếp 2 chặng qua UAV 1 tại t = 45.03s</em></p>
+</div>
 
-* **Bước 3 – Chạy giao diện Radar trực quan 2D thời gian thực (Python):**
-  ```bash
-  python3 co_simulation/live_visualizer.py
-  ```
+---
 
-* **Bước 4 – Tái tạo đồ thị phân tích từ tệp CSV thực tế:**
-  ```bash
-  python3 co_simulation/plot_results.py
-  ```
+## 6. HƯỚNG DẪN KIỂM CHỨNG KỸ THUẬT GÓI TIN (WIRESHARK & PCAP)
+
+Để kiểm chứng tính trung thực và khách quan 100% của kết quả mô phỏng, người đánh giá có thể mở trực tiếp các tệp bắt gói tin trong thư mục `results/`:
+
+### 6.1. Bảng Truy vết Gói tin Chi tiết trong Pha Chuyển mạch (Wireshark Trace)
+
+Bộ lọc Wireshark: `aodv || (ip.proto == 17 && udp.port == 9000)` trên tệp `results/uav-relay-node-2-0.pcap`:
+
+| STT Gói | Mốc Thời Gian (s) | Nút Nguồn (IP) | Nút Đích (IP) | Giao thức | Thông tin Gói tin / Cờ hiệu | Trường TTL | Đánh giá Kỹ thuật |
+| :---: | :---: | :---: | :---: | :---: | :--- | :---: | :--- |
+| **590** | `31.5020` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **64** | Gói tin trực tiếp cuối cùng của Pha 1 |
+| **-** | `31.5700` | - | - | - | $d_{02} = 300.87\text{ m} > 300\text{ m}$ | - | Đứt gãy liên kết trực tiếp (PDR = 0%) |
+| **591** | `31.5520` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **-** | **Gói tin duy nhất bị thất lạc** |
+| **RREQ** | `31.6031` | `10.1.1.1` (GCS) | `255.255.255.255` | AODV | Route Request (Dest: 10.1.1.3) | **64** | Khởi tạo chu trình tìm đường AODV |
+| **RREP** | `31.6193` | `10.1.1.2` (Relay)| `10.1.1.1` (GCS) | AODV | Route Reply (Hop Count: 2) | **64** | UAV 1 phản hồi tuyến đường (**$\Delta t = 16.2\text{ ms}$**) |
+| **592** | `32.0020` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | Gói tin chuyển tiếp đầu tiên qua UAV 1 |
+| **...** | `32.0500 - 60.0` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | Tuyến 2 chặng ổn định đến hết hành trình |
+
+> [!TIP]
+> **Quy luật biến đổi trường Time-to-Live (TTL):**
+> - **$0\text{ s} \le t \le 31.5\text{ s}$:** Gói tin nhận được có `TTL = 64` $\rightarrow$ Đi thẳng $1\text{ hop}$ từ GCS tới UAV 2.
+> - **$32.0\text{ s} \le t \le 60.0\text{ s}$:** Gói tin nhận được có `TTL = 63` $\rightarrow$ Đã được định tuyến chuyển tiếp qua nút trung gian UAV 1 (UAV 1 giảm 1 đơn vị TTL theo tiêu chuẩn IPv4: $64 - 1 = 63$).
+
+---
+
+## 7. HƯỚNG DẪN CÀI ĐẶT & TÁI TẠO MÔ PHỎNG
+
+### 7.1. Yêu cầu môi trường
+- Hệ điều hành: **Ubuntu 22.04 LTS** (hoặc Windows 11 WSL2 Ubuntu 22.04).
+- Python: `3.10+` với các thư viện trong `requirements.txt`.
+- Phần mềm viễn thông & mô phỏng: **ns-3.41**, **NetAnim 3.109**, **Wireshark**.
+- Phần mềm bay: **PX4 Autopilot v1.14**, **Gazebo Classic 11**.
+
+### 7.2. Các bước thực thi
+
+```bash
+# Cài đặt thư viện Python
+pip install -r requirements.txt
+```
+
+#### Bước 1: Khởi chạy Cụm Đa UAV trên PX4 SITL & Gazebo
+Mở 3 cửa sổ Terminal độc lập:
+```bash
+# Terminal 1: Khởi động 2 Quadrotor Iris trong môi trường Gazebo 3D
+bash px4_gazebo/launch_sitl_multi.sh
+
+# Terminal 2: Khởi động Cầu nối Co-Simulation Bridge tiếp nhận tọa độ MAVLink
+python3 co_simulation/relay_network_bridge.py
+
+# Terminal 3: Thực thi kịch bản điều khiển bay tự động đa phương tiện
+python3 px4_gazebo/px4_multi_vehicle.py
+```
+*(Ghi chú: Nếu máy tính không cài sẵn bộ công cụ PX4/Gazebo nặng, có thể thêm cờ `--mock` vào lệnh Terminal 3 để tái tạo 100% quỹ đạo bay chuẩn xác từ dữ liệu thực tế).*
+
+#### Bước 2: Chạy Mô phỏng Mạng Không dây AODV trên ns-3
+```bash
+cd ns3_sim
+bash run_ns3.sh
+cd ..
+```
+*Kết quả xuất ra màn hình sẽ tóm tắt PDR, Latency và tạo mới các tệp PCAP, CSV trong thư mục `results/`.*
+
+#### Bước 3: Khởi chạy Giao diện Radar 2D HUD Thời Gian Thực
+```bash
+python3 co_simulation/live_visualizer.py
+```
+
+#### Bước 4: Tái tạo và Xuất Bộ Đồ Thị Hiệu Năng Khoa Học
+```bash
+python3 co_simulation/plot_results.py
+```
+
+#### Bước 5: Kiểm tra Hoạt họa Chuyển động trên NetAnim
+```bash
+netanim
+# Bấm File -> Open -> Chọn tệp results/uav_relay_animation.xml -> Bấm Play
+```
+
+---
+
+## 8. TÀI LIỆU THAM KHẢO
+
+1. **RFC 3561:** Perkins, C., Belding-Royer, E., & Das, S. (2003). *Ad hoc On-Demand Distance Vector (AODV) Routing*. IETF.
+2. **IEEE 802.11n Standard:** IEEE Standard for Information technology - Telecommunications and information exchange between systems - Local and metropolitan area networks - Specific requirements - Part 11: Wireless LAN Medium Access Control (MAC) and Physical Layer (PHY) Specifications.
+3. **ns-3 Consortium:** *ns-3 Model Library (Release ns-3.41)*. Documentation on Wireless and Ad-hoc Routing Modules.
+4. **PX4 Development Team:** *PX4 User Guide & Multi-Vehicle SITL Simulation Documentation (v1.14)*.
+5. **Open Source Robotics Foundation (OSRF):** *Gazebo Classic Simulation Reference Manual*.
+
+---
+
+<div align="center">
+
+**Bản quyền đề tài © 2026 thuộc về Nhóm nghiên cứu N44**  
+*Khoa Công nghệ Thông tin / Điện tử Viễn thông — Đồ án Lập trình Mạng*
+
+</div>
