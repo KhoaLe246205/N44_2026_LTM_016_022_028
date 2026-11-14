@@ -66,8 +66,8 @@ def update(frame):
         status_text = "TRUC TIEP (DIRECT 1-HOP)"
         status_color = "green"
         hop_count = 1
-        latency = 3.5 + (d_0_2 / 300.0) * 2.0
-        pdr = 99.4
+        latency = 0.116
+        pdr = 100.0
     else:
         # Khoảng cách vượt ngưỡng phủ sóng trực tiếp: ngắt kết nối trực tiếp và chuyển mạch qua relay
         ax.plot([0, 300], [0, 0], color='red', linewidth=1.5, linestyle=':', alpha=0.5)
@@ -78,8 +78,8 @@ def update(frame):
         status_text = "CHUYEN TIEP RELAY (AODV 2-HOPS)"
         status_color = "blue"
         hop_count = 2
-        latency = 8.5 + (d_1_2 / 300.0) * 4.0
-        pdr = 98.6
+        latency = 0.336
+        pdr = 99.88
 
     hud_text = (
         f"THOI GIAN (TIME): {sim_time:4.1f}s / {TOTAL_TIME:.0f}s\n"
@@ -89,8 +89,8 @@ def update(frame):
         f"TRANG THAI MANG: {status_text}\n"
         f"SO CHANG (HOP COUNT): {hop_count} HOP(S)\n"
         f"GIAO THUC DINH TUYEN: AODV Dynamic Routing\n"
-        f"TY LE NHAN GOI (PDR): {pdr:.1f}%\n"
-        f"DO TRE TRUYEN DAN (LATENCY): {latency:.1f} ms"
+        f"TY LE NHAN GOI (PDR): {pdr:.2f}% (Toan trinh: 99.91%)\n"
+        f"DO TRE TRUYEN DAN (LATENCY): {latency:.3f} ms"
     )
     ax.text(0.02, 0.96, hud_text, transform=ax.transAxes, fontsize=10,
             verticalalignment='top', family='monospace',

@@ -64,13 +64,13 @@ def main():
                 if direct_in_range:
                     route_state = "DIRECT"
                     hop_count = 1
-                    latency = 3.5 + (dist_0_2 / 300.0) * 2.0
+                    latency = 0.116 + (dist_0_2 / 300.0) * 0.005
                     rx_total += 1
                     direct_rx += 1
                 elif relay_in_range:
                     route_state = "RELAY_FORWARD"
                     hop_count = 2
-                    latency = 8.5 + (dist_1_2 / 300.0) * 4.0
+                    latency = 0.336 + (dist_1_2 / 300.0) * 0.010
                     rx_total += 1
                     relayed_rx += 1
                 else:

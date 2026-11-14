@@ -89,9 +89,9 @@ graph TD
 │   └── px4_multi_vehicle.py   # Điều khiển bay đa UAV qua MAVLink UDP
 ├── results/                   # Dữ liệu đo kiểm thực nghiệm thu được
 │   ├── ns3_uav_relay_metrics.csv # 118 bản ghi đo kiểm mạng ns-3
-│   ├── px4_flight_telemetry.csv  # Tọa độ bay 3D thực tế theo thời gian
+│   ├── px4_flight_telemetry.csv  # 586 mẫu tọa độ bay 3D thực tế theo thời gian
 │   ├── uav_relay_performance_charts.png # Đồ thị hiệu năng 4 thành phần
-│   ├── uav_relay_animation.xml   # Tệp hoạt họa mở bằng NetAnim
+│   ├── uav_relay_animation.xml   # Tệp hoạt họa mở bằng NetAnim (đã cân trục Y)
 │   ├── uav-relay-node-0-0.pcap   # Bắt gói tin tại GCS (Node 0)
 │   ├── uav-relay-node-1-0.pcap   # Bắt gói tin tại UAV 1 Relay (Node 1)
 │   └── uav-relay-node-2-0.pcap   # Bắt gói tin tại UAV 2 Recon (Node 2)
@@ -108,11 +108,12 @@ graph TD
 | Chỉ số hiệu năng | Giai đoạn 1: $x \le 300\text{m}$ (Direct Link) | Giai đoạn 2: $x > 300\text{m}$ (Không có Relay) | Giai đoạn 2: $x > 300\text{m}$ (Có Flying Relay) |
 | :--- | :---: | :---: | :---: |
 | **Số chặng mạng (Hop Count)** | **1 Hop** (GCS $\rightarrow$ Recon) | Mất kết nối (**0 Hop**) | **2 Hops** (GCS $\rightarrow$ Relay $\rightarrow$ Recon) |
-| **Tỷ lệ nhận gói tin (PDR)** | **100.00%** (589 / 589 gói) | **0.0%** (100% rớt gói) | **99.91%** (1.138 / 1.139 gói nhận) |
-| **Độ trễ trung bình (Latency)** | **$\approx 0.12\text{ ms}$** ($0.115 - 0.118\text{ ms}$) | Vô hạn (Rớt gói / Timeout) | **$\approx 0.34\text{ ms}$** ($0.332 - 0.339\text{ ms}$) |
-| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.45\text{ ms}$** (tại $x = 304.4\text{m}$ do AODV Route Discovery) |
+| **Số gói tin phát / nhận** | **590 / 590 gói** (100.0%) | **549 / 0 gói** (Mất 100%) | **549 / 548 gói nhận** (Toàn trình: 1.138 / 1.139 gói) |
+| **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.0%** (100% rớt gói) | **99.82%** (Toàn trình: **99.91%**) |
+| **Độ trễ trung bình (Latency)** | **$0.116\text{ ms}$** ($0.115 - 0.118\text{ ms}$) | Vô hạn (Rớt gói / Timeout) | **$0.336\text{ ms}$** ($0.332 - 0.339\text{ ms}$) |
+| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.45\text{ ms}$** (tại $t = 32.0\text{s}$ do AODV Route Discovery) |
 | **Băng thông cấu hình (Data Rate)** | 20.48 Kbps (20 pkts/s $\times$ 128 B) | 0 Kbps | 20.48 Kbps |
-| **Thông lượng thực tế (Throughput)** | **$\approx 20.46\text{ Kbps}$** | 0 Kbps | **$\approx 19.42 - 20.44\text{ Kbps}$** |
+| **Thông lượng thực tế (Throughput)** | **$\approx 19.95 - 20.48\text{ Kbps}$** | 0.00 Kbps | **$\approx 19.42 - 20.44\text{ Kbps}$** |
 | **Trạng thái kết nối** | Trực tiếp 1 chặng ổn định | Mất kiểm soát phương tiện | **Chuyển tiếp trơn tru, thông suốt liên tục** |
 
 ---
@@ -124,15 +125,15 @@ graph TD
 ![UAV Relay Performance Charts](results/uav_relay_performance_charts.png)
 
 1. **Biểu đồ 1 - Không gian bố trí & Vùng phủ sóng Wi-Fi ($R = 300\text{m}$):**
-   - Vùng phủ sóng của GCS (màu xanh lá) và UAV 1 Relay (màu xanh dương) tạo thành vùng bao phủ liên tục, mở rộng hành lang truyền thông từ $300\text{m}$ lên đến $550\text{m}$.
+   - Vùng phủ sóng của GCS (màu xanh lá) và UAV 1 Relay (màu xanh dương) tạo thành vùng bao phủ liên tục, mở rộng hành lang truyền thông thực tế đạt $500\text{m}$ và cự ly hình học lý thuyết tối đa lên đến $550\text{m}$.
 2. **Biểu đồ 2 - Khoảng cách tương đối theo thời gian:**
-   - Tại $T = 31.5\text{s}$, cự ly $d(\text{GCS}, \text{UAV 2})$ vượt qua ngưỡng ngắt sóng $300\text{m}$. Nhờ UAV 1 duy trì vị trí bám trung điểm, cự ly giữa UAV 1 và UAV 2 luôn được giữ ở mức $< 250\text{m}$, hoàn toàn nằm trong tầm an toàn thu phát vô tuyến.
+   - Tại $T = 31.5\text{s} \sim 31.57\text{s}$, cự ly 3D Euclid $d(\text{GCS}, \text{UAV 2})$ (đường màu đỏ) vượt qua ngưỡng ngắt sóng $300\text{m}$ ($d_{02} = 300.87\text{ m}$ tại $t = 31.57\text{s}$). Nhờ UAV 1 duy trì vị trí bám trung điểm, cự ly giữa GCS - UAV 1 (đường màu xanh lá) và UAV 1 - UAV 2 (đường màu xanh dương) luôn được khống chế dưới $252\text{m}$, hoàn toàn nằm trong tầm an toàn thu phát vô tuyến.
 3. **Biểu đồ 3 - Số chặng định tuyến AODV (Hop Count):**
-   - Đồ thị thể hiện bước nhảy dạng bậc thang: trong $31\text{s}$ đầu giữ nguyên $1\text{ hop}$, và chuyển mạch dứt khoát sang $2\text{ hops}$ ngay khi vượt qua mốc ranh giới $x = 300\text{m}$.
+   - Đồ thị thể hiện bước nhảy dạng bậc thang theo tọa độ X của UAV 2 ($0 \rightarrow 500\text{m}$): trong vùng $x \le 300\text{m}$ giữ nguyên $1\text{ hop}$, và chuyển mạch dứt khoát sang $2\text{ hops}$ ngay khi vượt qua mốc ranh giới kích hoạt $x \approx 300\text{m}$.
 4. **Biểu đồ 4 - Tỷ lệ nhận gói PDR và Độ trễ truyền dẫn End-to-End:**
-   - **Tỷ lệ nhận gói (PDR):** Đường màu đỏ (khi không có relay) sập thẳng đứng về 0% ngay tại mốc 300m. Trong khi đó, đường màu xanh dương (hệ thống có UAV 1 Relay) duy trì gần như tuyệt đối ở mức **99.91%** (chỉ mất đúng 1 gói tin trong toàn bộ 1.139 gói phát đi).
-   - **Ý nghĩa kỹ thuật của gai nhọn độ trễ 2.45 ms tại mốc 304.4m:**  
-     Trên đường biểu diễn độ trễ (màu xanh lá), xuất hiện một gai nhọn vọt lên 2.45 ms tại thời điểm chuyển mạch ($T = 32\text{s}$, $x = 304.4\text{m}$). Đây chính là **thời gian hội tụ định tuyến (Route Discovery Latency)** của giao thức AODV: Khi đường truyền trực tiếp bị ngắt, nút nguồn phát bản tin `RREQ`, nút Relay phản hồi `RREP` và thực hiện phân giải địa chỉ MAC qua `ARP`. Quá trình hội tụ diễn ra trong khoảng 16 ms thời gian mô phỏng, gây ra đỉnh trễ tức thời 2.45 ms và chỉ làm rớt duy nhất 1 gói tin, sau đó mạng lập tức ổn định trở lại ở mức độ trễ lý tưởng $\approx 0.34\text{ ms}$ cho toàn bộ tuyến 2 chặng.
+   - **Tỷ lệ nhận gói (PDR):** Đường màu đỏ (khi không có relay) sập thẳng đứng về 0% ngay tại mốc 300m. Trong khi đó, đường màu xanh dương (hệ thống có UAV 1 Relay) duy trì ổn định ở mức **99.91%** (chỉ mất đúng 1 gói tin trong toàn bộ 1.139 gói phát đi).
+   - **Ý nghĩa kỹ thuật của gai nhọn độ trễ 2.45 ms tại mốc t = 32.0s:**  
+     Trên đường biểu diễn độ trễ (màu xanh lá chấm gạch), xuất hiện một gai nhọn vọt lên 2.45 ms tại thời điểm chuyển mạch ($T = 32.0\text{s}$, $x \approx 300\text{m}$). Đây chính là **thời gian hội tụ định tuyến (Route Discovery Latency)** của giao thức AODV: Khi đường truyền trực tiếp bị ngắt, nút nguồn phát bản tin `RREQ`, nút Relay phản hồi `RREP` và hoàn tất thiết lập tuyến mới. Quá trình hội tụ diễn ra trong đúng 16 ms thời gian mô phỏng (chính xác 16.2 ms trên Wireshark PCAP: RREQ lúc $31.6031\text{s}$, RREP lúc $31.6193\text{s}$), gây ra đỉnh trễ tức thời 2.45 ms và chỉ làm rớt duy nhất 1 gói tin, sau đó mạng lập tức ổn định trở lại ở mức độ trễ lý tưởng $0.336\text{ ms}$ cho toàn bộ tuyến 2 chặng.
 
 ---
 
