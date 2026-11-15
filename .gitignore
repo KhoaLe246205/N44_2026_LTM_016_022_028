@@ -20,4 +20,6 @@ Thumbs.db
 # Documentation generation & report files
 *.docx
 *.doc
+*.pdf
+*.zip
 create_report_doc.py

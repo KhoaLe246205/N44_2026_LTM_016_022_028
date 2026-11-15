@@ -177,7 +177,7 @@ UAV_Relay_Project/
 ## 5. KẾT QUẢ THỰC NGHIỆM & PHÂN TÍCH HIỆU NĂNG
 
 ### 5.1. Bảng Số Liệu Đo Kiểm Đối Sánh Tổng Hợp
-Số liệu được trích xuất trực tiếp từ các tệp nhật ký thực nghiệm ns-3 (`results/ns3_uav_relay_metrics.csv` và `baseline_comparison/uav_baseline_metrics.csv`):
+Số liệu được trích xuất trực tiếp từ các tệp nhật ký thực nghiệm ns-3 (`results/ns3_uav_relay_metrics.csv` và `baseline_comparison/results/ns3_baseline_metrics.csv`):
 
 | Tiêu chí Đánh giá Hiệu năng | Giai đoạn 1 ($x_2 \le 300\text{ m}$)<br/>*Direct Link (1 Chặng)* | Kịch bản Baseline ($x_2 > 300\text{ m}$)<br/>*Không có UAV Relay* | Giải pháp Đề xuất ($x_2 > 300\text{ m}$)<br/>*UAV Relay Bám Trung Điểm* | Đánh giá Kỹ thuật |
 | :--- | :---: | :---: | :---: | :--- |
@@ -185,8 +185,8 @@ Số liệu được trích xuất trực tiếp từ các tệp nhật ký th�
 | **Số gói tin phát / nhận** | **589 / 589 gói** | **550 / 0 gói nhận** | **550 / 549 gói nhận** | Khôi phục 99.82% gói ở vùng xa |
 | **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.00%** (Rớt toàn bộ) | **99.82%** (Toàn trình: **99.91%**) | Tăng PDR toàn trình từ 51.71% lên 99.91% |
 | **Độ trễ truyền dẫn trung bình** | **$0.116\text{ ms}$** | $\infty$ (Mất tuyến hoàn toàn) | **$0.336\text{ ms}$** | Duy trì độ trễ thời gian thực cực thấp |
-| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.45\text{ ms}$** (tại $t = 32.0\text{ s}$) | Độ trễ xử lý Route Discovery AODV |
-| **Thời gian hội tụ AODV** | $0\text{ ms}$ | Thất bại | **$16.2\text{ ms}$** ($31.603\text{s} \rightarrow 31.619\text{s}$) | Thiết lập đường truyền 2 chặng tức thời |
+| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.47\text{ ms}$** (tại $t = 32.0\text{ s}$) | Trễ trung bình cửa sổ 0.5s (gói chờ trễ thực tế $\approx 20\text{ ms}$) |
+| **Thời gian hội tụ AODV** | $0\text{ ms}$ | Thất bại | **$6.1\text{ ms}$** (RREP) / **$16.5\text{ ms}$** (Gói 1) | Trao đổi RREQ/RREP và chuyển tiếp gói tức thời |
 | **Băng thông cấu hình (Offered Load)** | $20.48\text{ Kbps}$ | $0.00\text{ Kbps}$ | **$20.48\text{ Kbps}$** (20 pkts/s $\times$ 128 B) | Luồng Telemetry UDP danh định |
 | **Thông lượng thực tế (Throughput)** | **$\approx 20.48\text{ Kbps}$** | $0.00\text{ Kbps}$ | **$\approx 20.44\text{ Kbps}$** | Băng thông đạt xấp xỉ 100% danh định |
 | **Trạng thái liên lạc** | Trực tiếp ổn định | Mất kiểm soát phương tiện | **Liên tục, thông suốt toàn phần** | Giải quyết triệt để nút cổ chai cự ly |
@@ -211,8 +211,8 @@ Số liệu được trích xuất trực tiếp từ các tệp nhật ký th�
    - Đồ thị thể hiện bước chuyển bậc thang chính xác: $1\text{ hop}$ trong vùng $x_2 \le 300\text{ m}$, và chuyển mạch tức thời sang $2\text{ hops}$ khi $x_2 > 300\text{ m}$.
 4. **Biểu đồ 4 — Tỷ lệ nhận gói PDR và Độ trễ truyền dẫn:**
    - **Tỷ lệ nhận gói PDR:** Tuyến không có relay (đường đứt nét đỏ) rơi tự do về $0\%$. Tuyến có UAV Relay (đường xanh dương đậm) duy trì vững chắc ở mức **$99.91\%$**.
-   - **Ý nghĩa kỹ thuật của đỉnh trễ $2.45\text{ ms}$ tại $t = 32.0\text{ s}$:**  
-     Tại thời điểm chuyển mạch, AODV khởi tạo chu trình Route Discovery. Thời gian xử lý phát bản tin `RREQ` và đợi phản hồi `RREP` làm độ trễ tức thời tăng vọt lên $2.45\text{ ms}$ và gây rớt duy nhất $1\text{ gói tin}$ (gói số 591). Ngay sau khi bảng định tuyến được thiết lập thành công, độ trễ lập tức hồi phục về mức danh định lý tưởng $0.336\text{ ms}$ cho toàn bộ tuyến 2 chặng.
+   - **Ý nghĩa kỹ thuật của đỉnh trễ $2.47\text{ ms}$ tại $t = 32.0\text{ s}$:**  
+     Tại thời điểm chuyển mạch ($t = 31.55\text{s}$), AODV phát hiện rớt link trực tiếp và kích hoạt chu trình Route Discovery. UAV 1 gửi `RREP` phản hồi về GCS chỉ trong $6.1\text{ ms}$ ($t = 31.5592\text{s}$), và gói tin dữ liệu đầu tiên được chuyển tiếp thành công đến UAV 2 trong $16.5\text{ ms}$ ($t = 31.5695\text{s}$). Riêng gói tin được giữ trong hàng đợi tìm đường (Route Queue) chịu độ trễ thực tế $\approx 20\text{ ms}$; con số $2.47\text{ ms}$ là giá trị trễ trung bình của cửa sổ thống kê $0.5\text{ s}$ tại $t = 32.0\text{ s}$. Toàn bộ hành trình chỉ thất lạc duy nhất $1\text{ gói tin}$ trong pha chuyển mạch, sau đó độ trễ ổn định bền vững ở mức $0.336\text{ ms}$ cho toàn bộ tuyến 2 chặng.
 
 ---
 
@@ -291,13 +291,14 @@ Bộ lọc Wireshark: `aodv || (ip.proto == 17 && udp.port == 9000)` trên tệp
 
 | STT Gói | Mốc Thời Gian (s) | Nút Nguồn (IP) | Nút Đích (IP) | Giao thức | Thông tin Gói tin / Cờ hiệu | Trường TTL | Đánh giá Kỹ thuật |
 | :---: | :---: | :---: | :---: | :---: | :--- | :---: | :--- |
-| **590** | `31.5020` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **64** | Gói tin trực tiếp cuối cùng của Pha 1 |
-| **-** | `31.5700` | - | - | - | $d_{02} = 300.87\text{ m} > 300\text{ m}$ | - | Đứt gãy liên kết trực tiếp (PDR = 0%) |
-| **591** | `31.5520` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **-** | **Gói tin duy nhất bị thất lạc** |
-| **RREQ** | `31.6031` | `10.1.1.1` (GCS) | `255.255.255.255` | AODV | Route Request (Dest: 10.1.1.3) | **64** | Khởi tạo chu trình tìm đường AODV |
-| **RREP** | `31.6193` | `10.1.1.2` (Relay)| `10.1.1.1` (GCS) | AODV | Route Reply (Hop Count: 2) | **64** | UAV 1 phản hồi tuyến đường (**$\Delta t = 16.2\text{ ms}$**) |
-| **592** | `32.0020` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | Gói tin chuyển tiếp đầu tiên qua UAV 1 |
-| **...** | `32.0500 - 60.0` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | Tuyến 2 chặng ổn định đến hết hành trình |
+| **589** | `31.4502` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **64** | Gói tin trực tiếp thành công cuối cùng của Pha 1 |
+| **-** | `31.5000` | - | - | - | $d_{02} = 300.07\text{ m} > 300\text{ m}$ | - | Vượt ngưỡng cự ly vô tuyến danh định (PDR rơi về 0%) |
+| **590** | `31.5001 - 31.5228` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **-** | **Gói tin duy nhất thất lạc** (phát lại 7 lần tầng MAC thất bại) |
+| **RREQ** | `31.5531` | `10.1.1.1` (GCS) | `255.255.255.255` | AODV | Route Request (Dest: 10.1.1.3, TTL=3) | **3** | GCS phát quảng bá tìm đường sau khi rớt liên kết trực tiếp |
+| **RREP** | `31.5592` | `10.1.1.2` (Relay)| `10.1.1.1` (GCS) | AODV | Route Reply (Hop Count: 2, TTL=1) | **1** | UAV 1 Relay gửi phản hồi tuyến đường về GCS (**$\Delta t = 6.1\text{ ms}$**) |
+| **ACK** | `31.5692` | `10.1.1.1` (GCS) | `10.1.1.2` (Relay)| AODV | RREP-ACK (AODV Type 4) | **1** | GCS xác nhận tuyến đường 2 chặng qua UAV 1 |
+| **591** | `31.5695` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | **Gói tin chuyển tiếp đầu tiên qua UAV 1** ($\Delta t = 16.5\text{ ms}$) |
+| **...** | `31.6004 - 60.0` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | Tuyến 2 chặng ổn định đến hết hành trình (550 gói qua Relay) |
 
 > [!TIP]
 > **Quy luật biến đổi trường Time-to-Live (TTL):**
@@ -333,7 +334,7 @@ python3 co_simulation/relay_network_bridge.py
 # Terminal 3: Thực thi kịch bản điều khiển bay tự động đa phương tiện
 python3 px4_gazebo/px4_multi_vehicle.py
 ```
-*(Ghi chú: Nếu máy tính không cài sẵn bộ công cụ PX4/Gazebo nặng, có thể thêm cờ `--mock` vào lệnh Terminal 3 để tái tạo 100% quỹ đạo bay chuẩn xác từ dữ liệu thực tế).*
+*(Ghi chú: Nếu máy tính không cài sẵn bộ công cụ PX4/Gazebo nặng, có thể thêm cờ `--mock` vào lệnh Terminal 3 để chạy giao diện Radar kiểm thử với dữ liệu quỹ đạo mô phỏng chuẩn hóa).*
 
 #### Bước 2: Chạy Mô phỏng Mạng Không dây AODV trên ns-3
 ```bash
@@ -387,7 +388,7 @@ cd ..
 > - **Mở rộng phạm vi tác chiến:** Kéo dài hành lang truyền thông từ $300\text{ m}$ lên **$500\text{ m}$** thực tế (ngưỡng hình học lý thuyết đạt **$550\text{ m}$**), giải quyết triệt để bài toán đứt gãy vô tuyến Line-of-Sight của UAV tầm xa.
 > - **Độ tin cậy truyền dẫn gần như tuyệt đối (PDR = 99.91%):** Trong toàn bộ hành trình $60\text{ s}$ với $1.139$ gói tin được phát đi, mạng thu nhận thành công **$1.138$ gói** (chỉ mất duy nhất 1 gói tin trong pha chuyển mạch định tuyến).
 > - **Độ trễ truyền dẫn cực thấp (Sub-millisecond Latency):** Độ trễ 1 chặng trực tiếp đạt **$0.116\text{ ms}$**; độ trễ qua trạm chuyển tiếp 2 chặng đạt **$0.336\text{ ms}$**.
-> - **Hội tụ định tuyến tức thời (16 ms Convergence):** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` trong đúng **$16.2\text{ ms}$** (tại $t = 31.6031\text{ s} \rightarrow 31.6193\text{ s}$), tạo đỉnh trễ tạm thời $2.45\text{ ms}$ rồi ổn định ngay lập tức.
+> - **Hội tụ định tuyến tức thời (16.5 ms Convergence):** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` chỉ trong **$6.1\text{ ms}$** ($t = 31.5531\text{ s} \rightarrow 31.5592\text{ s}$) và chuyển tiếp gói tin dữ liệu đầu tiên qua Relay trong **$16.5\text{ ms}$** ($t = 31.5695\text{ s}$). Gói tin xếp hàng chờ trong lúc tìm đường có trễ thực tế $\approx 20\text{ ms}$ (đỉnh trễ trung bình cửa sổ 0.5s đạt $2.47\text{ ms}$ rồi ổn định ngay lập tức về $0.336\text{ ms}$).
 > - **Đồng mô phỏng 4 phân hệ liên kết khép kín:** Tích hợp thời gian thực giữa động lực học 3D (Gazebo), vi điều khiển bay công nghiệp (PX4 Autopilot SITL), giao thức mạng cấp gói (ns-3.41) và cầu nối truyền thông MAVLink/UDP.
 
 ---
