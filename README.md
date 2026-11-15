@@ -2,14 +2,6 @@
 
 <div align="center">
 
-![Simulator](https://img.shields.io/badge/Network_Sim-ns--3.41-orange?style=for-the-badge&logo=c%2B%2B)
-![Autopilot](https://img.shields.io/badge/Autopilot-PX4_v1.14_SITL-blue?style=for-the-badge)
-![Gazebo](https://img.shields.io/badge/3D_Dynamics-Gazebo_11-informational?style=for-the-badge)
-![Routing](https://img.shields.io/badge/Routing-AODV_(RFC_3561)-purple?style=for-the-badge)
-![Wireless](https://img.shields.io/badge/Physical-IEEE_802.11n_Ad--hoc-brightgreen?style=for-the-badge)
-![PDR](https://img.shields.io/badge/PDR-99.91%25-success?style=for-the-badge)
-![Relay Latency](https://img.shields.io/badge/Relay_Latency-0.336_ms-blueviolet?style=for-the-badge)
-
 **Học phần:** Lập trình Mạng / Hệ thống Mạng Máy tính  
 **Mã nhóm:** `N44_2026_LTM_016_022_028`  
 **Mô hình nghiên cứu:** Đồng mô phỏng PX4 Autopilot SITL — Gazebo 3D Dynamics — ns-3 Network Simulator
@@ -22,21 +14,10 @@
 
 | STT | Họ và tên | Mã sinh viên | Phân công nhiệm vụ chính | Tỷ lệ đóng góp |
 | :---: | :--- | :---: | :--- | :---: |
-| 1 | **Lê Anh Khoa** | **106230016** | Thiết kế phân hệ ns-3, cấu hình Wi-Fi 802.11n Ad-hoc & Phân tích định tuyến AODV (RFC 3561) | **100%** |
-| 2 | **Huỳnh Ngọc Tịnh Phong** | **106230022** | Thiết kế môi trường khí động học Gazebo 3D, lập trình Multi-Vehicle PX4 SITL & Quỹ đạo bay | **100%** |
-| 3 | **Ngô Quang Thế** | **106230028** | Thiết kế Cầu nối Co-Simulation Bridge UDP Socket, Bộ trực quan hóa Radar 2D & Xử lý số liệu | **100%** |
-
----
-
-## ĐIỂM NỔI BẬT & ĐÓNG GÓP KỸ THUẬT CỦA ĐỀ TÀI
-
-> [!IMPORTANT]
-> **Kết quả cốt lõi đạt được trong nghiên cứu:**
-> - **Mở rộng phạm vi tác chiến:** Kéo dài hành lang truyền thông từ $300\text{ m}$ lên **$500\text{ m}$** thực tế (ngưỡng hình học lý thuyết đạt **$550\text{ m}$**), giải quyết triệt để bài toán đứt gãy vô tuyến Line-of-Sight của UAV tầm xa.
-> - **Độ tin cậy truyền dẫn gần như tuyệt đối (PDR = 99.91%):** Trong toàn bộ hành trình $60\text{ s}$ với $1.139$ gói tin được phát đi, mạng thu nhận thành công **$1.138$ gói** (chỉ mất duy nhất 1 gói tin trong pha chuyển mạch định tuyến).
-> - **Độ trễ truyền dẫn cực thấp (Sub-millisecond Latency):** Độ trễ 1 chặng trực tiếp đạt **$0.116\text{ ms}$**; độ trễ qua trạm chuyển tiếp 2 chặng đạt **$0.336\text{ ms}$**.
-> - **Hội tụ định tuyến tức thời (16 ms Convergence):** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` trong đúng **$16.2\text{ ms}$** (tại $t = 31.6031\text{ s} \rightarrow 31.6193\text{ s}$), tạo đỉnh trễ tạm thời $2.45\text{ ms}$ rồi ổn định ngay lập tức.
-> - **Đồng mô phỏng 4 phân hệ liên kết khép kín:** Tích hợp thời gian thực giữa động lực học 3D (Gazebo), vi điều khiển bay công nghiệp (PX4 Autopilot SITL), giao thức mạng cấp gói (ns-3.41) và cầu nối truyền thông MAVLink/UDP.
+| 1 | **Lê Anh Khoa** | **106230016** | Thiết kế phân hệ ns-3, cấu hình Wi-Fi 802.11n Ad-hoc & Phân tích định tuyến AODV (RFC 3561) | **33.4%** |
+| 2 | **Huỳnh Ngọc Tịnh Phong** | **106230022** | Thiết kế môi trường khí động học Gazebo 3D, lập trình Multi-Vehicle PX4 SITL & Quỹ đạo bay | **33.3%** |
+| 3 | **Ngô Quang Thế** | **106230028** | Thiết kế Cầu nối Co-Simulation Bridge UDP Socket, Bộ trực quan hóa Radar 2D & Xử lý số liệu | **33.3%** |
+| | **Tổng cộng** | | **Toàn bộ mã nguồn, dữ liệu & báo cáo đề tài** | **100.0%** |
 
 ---
 
@@ -56,7 +37,7 @@ Nhóm đề xuất giải pháp triển khai **UAV 1 (Relay Node)** đóng vai t
 
 <div align="center">
   <img src="docs/images/hinh_2_2_chuyen_mach.png" alt="Cơ chế chuyển mạch gói tin 2 pha" width="750"/>
-  <p><em>Hình 1: Cơ chế phân luồng dữ liệu 2 pha: Truyền trực tiếp 1 chặng và Chuyển tiếp đa chặng qua UAV Relay do nhóm vẽ</em></p>
+  <p><em>Hình 1: Cơ chế phân luồng dữ liệu 2 pha: Truyền trực tiếp 1 chặng và Chuyển tiếp đa chặng qua UAV Relay</em></p>
 </div>
 
 ---
@@ -83,7 +64,7 @@ $$x_1^*(t) = \min\left( \frac{x_2(t)}{2},\ 250\text{ m} \right)$$
 
 <div align="center">
   <img src="docs/images/hinh_3_1_minmax.png" alt="Mô hình tối ưu hóa Min-Max 3D" width="750"/>
-  <p><em>Hình 2: Mô hình tối ưu hóa cự ly không gian 3 chiều và vùng phủ sóng vô tuyến song hành do nhóm vẽ</em></p>
+  <p><em>Hình 2: Mô hình tối ưu hóa cự ly không gian 3 chiều và vùng phủ sóng vô tuyến song hành</em></p>
 </div>
 
 ### 2.2. Máy trạng thái hữu hạn (FSM) và Quy trình Khám phá Tuyến AODV
@@ -91,7 +72,7 @@ Quá trình chuyển tiếp mạng được quản lý bởi một máy trạng 
 
 <div align="center">
   <img src="docs/images/hinh_3_3_fsm.png" alt="Máy trạng thái hữu hạn chuyển mạch định tuyến" width="400"/>
-  <p><em>Hình 3: Máy trạng thái hữu hạn quản trị vòng đời tuyến đường và chuyển mạch chặng do nhóm vẽ</em></p>
+  <p><em>Hình 3: Máy trạng thái hữu hạn quản trị vòng đời tuyến đường và chuyển mạch chặng</em></p>
 </div>
 
 - **Trạng thái 1 (Direct Mode):** Tuyến 1 chặng có sẵn trong Route Table. Dữ liệu UDP truyền thẳng, $\text{TTL} = 64$.
@@ -107,7 +88,12 @@ Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Sim
 
 <div align="center">
   <img src="docs/images/hinh_2_1_kien_truc.png" alt="Kiến trúc hệ thống đồng mô phỏng 4 phân hệ" width="420"/>
-  <p><em>Hình 4: Sơ đồ kiến trúc 4 phân hệ đồng mô phỏng: Gazebo 3D, PX4 SITL, Co-Sim Bridge và ns-3 do nhóm vẽ</em></p>
+  <p><em>Hình 4: Sơ đồ kiến trúc 4 phân hệ đồng mô phỏng: Gazebo 3D, PX4 SITL, Co-Sim Bridge và ns-3</em></p>
+</div>
+
+<div align="center">
+  <img src="docs/images/hinh_3_2_pipeline.png" alt="Sơ đồ đường ống xử lý dữ liệu và luồng sự kiện liên tiến trình" width="850"/>
+  <p><em>Hình 5: Sơ đồ đường ống xử lý dữ liệu và luồng sự kiện liên tiến trình (Processing Pipeline)</em></p>
 </div>
 
 1. **Phân hệ Khí động học & Môi trường 3D (Gazebo Classic 11):**
@@ -128,12 +114,12 @@ Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Sim
   <img src="docs/images/hinh_4_1_flowchart_px4.png" alt="Lưu đồ thuật toán điều khiển PX4" width="370"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
   <img src="docs/images/hinh_4_2_flowchart_ns3.png" alt="Lưu đồ thuật toán mô phỏng ns-3" width="370"/>
-  <p><em>Hình 5: Lưu đồ thuật toán điều khiển bay PX4 (Trái) và Thuật toán mô phỏng mạng ns-3 (Phải) do nhóm vẽ</em></p>
+  <p><em>Hình 6: Lưu đồ thuật toán điều khiển bay PX4 (Trái) và Thuật toán mô phỏng mạng ns-3 (Phải)</em></p>
 </div>
 
 <div align="center">
   <img src="docs/images/gazebo_3d_simulation.png" alt="Môi trường mô phỏng Gazebo 3D" width="800"/>
-  <p><em>Hình 6: Môi trường mô phỏng 3D thực tế trên Gazebo với 2 drone Iris (Ảnh chụp thực nghiệm từ hệ thống)</em></p>
+  <p><em>Hình 7: Môi trường mô phỏng 3D thực tế trên Gazebo với 2 drone Iris (Ảnh chụp thực nghiệm từ hệ thống)</em></p>
 </div>
 
 ---
@@ -142,6 +128,12 @@ Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Sim
 
 ```text
 UAV_Relay_Project/
+├── baseline_comparison/               # Phân hệ Đối chứng Baseline (Không dùng UAV Relay)
+│   ├── compare_results.py             # Script so sánh đối chuẩn hiệu năng Baseline vs Relay
+│   ├── README.md                      # Hướng dẫn chi tiết kịch bản đối chứng
+│   ├── run_baseline.sh                # Script thực thi mô phỏng Baseline trên ns-3
+│   ├── uav_direct_baseline.cc         # Mã nguồn C++ ns-3 mô phỏng liên kết trực tiếp 2 nút
+│   └── results/                       # Kết quả đo kiểm Baseline (CSV và đồ thị đối sánh)
 ├── co_simulation/                     # Phân hệ Cầu nối & Xử lý Dữ liệu Đồng mô phỏng
 │   ├── live_visualizer.py             # Radar 2D HUD trực quan hóa chuyển mạch sóng
 │   ├── plot_results.py                # Xử lý số liệu đo kiểm và xuất đồ thị phân tích
@@ -157,6 +149,9 @@ UAV_Relay_Project/
 │       ├── hinh_4_1_flowchart_px4.png # Lưu đồ thuật toán điều khiển PX4
 │       ├── hinh_4_2_flowchart_ns3.png # Lưu đồ thuật toán mô phỏng ns-3
 │       ├── hinh_5_3_netanim_side_by_side.png # Hoạt họa NetAnim so sánh 1-hop vs 2-hop
+│       ├── hinh_5_4_baseline_netanim.png     # Hoạt họa NetAnim kịch bản đối chứng Baseline
+│       ├── hinh_5_5_baseline_wireshark.png   # Bắt gói tin Wireshark kịch bản Baseline
+│       ├── hinh_5_6_baseline_vs_relay_chart.png # Đồ thị so sánh đối chuẩn Baseline vs Relay
 │       └── radar_relay_45s.png        # Giao diện Radar HUD tại giây thứ 45.0s
 ├── ns3_sim/                           # Phân hệ Mô phỏng Mạng ns-3
 │   ├── run_ns3.sh                     # Kịch bản nạp mã nguồn và biên dịch tự động
@@ -182,19 +177,19 @@ UAV_Relay_Project/
 ## 5. KẾT QUẢ THỰC NGHIỆM & PHÂN TÍCH HIỆU NĂNG
 
 ### 5.1. Bảng Số Liệu Đo Kiểm Đối Sánh Tổng Hợp
-Số liệu được trích xuất trực tiếp từ tệp nhật ký thực nghiệm `results/ns3_uav_relay_metrics.csv`:
+Số liệu được trích xuất trực tiếp từ các tệp nhật ký thực nghiệm ns-3 (`results/ns3_uav_relay_metrics.csv` và `baseline_comparison/uav_baseline_metrics.csv`):
 
-| Tiêu chí Đánh giá Hiệu năng | Giai đoạn 1 ($x \le 300\text{ m}$)<br/>*Direct Link (1 Hop)* | Baseline 1 ($x > 300\text{ m}$)<br/>*Không có UAV Relay* | Baseline 2 ($x > 300\text{ m}$)<br/>*Relay cố định tại 150m* | Đề tài Đề xuất ($x > 300\text{ m}$)<br/>*UAV Relay Cơ động Động* |
-| :--- | :---: | :---: | :---: | :---: |
-| **Số chặng mạng (Hop Count)** | **1 Hop** | **0 Hop** (Mất kết nối) | **2 Hops** (Rớt khi $x_2 > 450\text{m}$) | **2 Hops** (Xuyên suốt hành trình) |
-| **Số gói tin phát / nhận** | **590 / 590 gói** | **549 / 0 gói** | **549 / 448 gói** | **549 / 548 gói** |
-| **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.00%** (Rớt 100%) | **81.60%** | **99.82%** (Toàn trình: **99.91%**) |
-| **Độ trễ truyền dẫn trung bình** | **$0.116\text{ ms}$** | $\infty$ (Timeout) | $0.342\text{ ms}$ | **$0.336\text{ ms}$** |
-| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | $2.68\text{ ms}$ | **$2.45\text{ ms}$** (tại $t = 32.0\text{ s}$) |
-| **Thời gian hội tụ AODV** | $0\text{ ms}$ | Thất bại | $18.5\text{ ms}$ | **$16.2\text{ ms}$** ($31.603\text{s} \rightarrow 31.619\text{s}$) |
-| **Băng thông cấu hình (Offered Load)** | $20.48\text{ Kbps}$ | $0.00\text{ Kbps}$ | $20.48\text{ Kbps}$ | **$20.48\text{ Kbps}$** (20 pkts/s $\times$ 128 B) |
-| **Thông lượng thực tế (Throughput)** | **$\approx 19.95 - 20.48\text{ Kbps}$** | $0.00\text{ Kbps}$ | $\approx 15.80\text{ Kbps}$ | **$\approx 19.42 - 20.44\text{ Kbps}$** |
-| **Trạng thái liên lạc** | Trực tiếp ổn định | Mất kiểm soát phương tiện | Gián đoạn vùng biên | **Liên tục, thông suốt toàn phần** |
+| Tiêu chí Đánh giá Hiệu năng | Giai đoạn 1 ($x_2 \le 300\text{ m}$)<br/>*Direct Link (1 Chặng)* | Kịch bản Baseline ($x_2 > 300\text{ m}$)<br/>*Không có UAV Relay* | Giải pháp Đề xuất ($x_2 > 300\text{ m}$)<br/>*UAV Relay Bám Trung Điểm* | Đánh giá Kỹ thuật |
+| :--- | :---: | :---: | :---: | :--- |
+| **Số chặng mạng (Hop Count)** | **1 Hop** | **0 Hop** (Mất kết nối) | **2 Hops** (AODV thông suốt) | Duy trì chuyển mạch liên tục |
+| **Số gói tin phát / nhận** | **589 / 589 gói** | **550 / 0 gói nhận** | **550 / 549 gói nhận** | Khôi phục 99.82% gói ở vùng xa |
+| **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.00%** (Rớt toàn bộ) | **99.82%** (Toàn trình: **99.91%**) | Tăng PDR toàn trình từ 51.71% lên 99.91% |
+| **Độ trễ truyền dẫn trung bình** | **$0.116\text{ ms}$** | $\infty$ (Mất tuyến hoàn toàn) | **$0.336\text{ ms}$** | Duy trì độ trễ thời gian thực cực thấp |
+| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.45\text{ ms}$** (tại $t = 32.0\text{ s}$) | Độ trễ xử lý Route Discovery AODV |
+| **Thời gian hội tụ AODV** | $0\text{ ms}$ | Thất bại | **$16.2\text{ ms}$** ($31.603\text{s} \rightarrow 31.619\text{s}$) | Thiết lập đường truyền 2 chặng tức thời |
+| **Băng thông cấu hình (Offered Load)** | $20.48\text{ Kbps}$ | $0.00\text{ Kbps}$ | **$20.48\text{ Kbps}$** (20 pkts/s $\times$ 128 B) | Luồng Telemetry UDP danh định |
+| **Thông lượng thực tế (Throughput)** | **$\approx 20.48\text{ Kbps}$** | $0.00\text{ Kbps}$ | **$\approx 20.44\text{ Kbps}$** | Băng thông đạt xấp xỉ 100% danh định |
+| **Trạng thái liên lạc** | Trực tiếp ổn định | Mất kiểm soát phương tiện | **Liên tục, thông suốt toàn phần** | Giải quyết triệt để nút cổ chai cự ly |
 
 ---
 
@@ -204,7 +199,7 @@ Số liệu được trích xuất trực tiếp từ tệp nhật ký thực ng
 
 <div align="center">
   <img src="results/uav_relay_performance_charts.png" alt="Biểu đồ hiệu năng 4 thành phần" width="900"/>
-  <p><em>Hình 7: Bộ đồ thị hiệu năng 4 thành phần: Không gian phủ sóng, Cự ly tương đối, Số chặng AODV, PDR và Độ trễ</em></p>
+  <p><em>Hình 8: Bộ đồ thị hiệu năng 4 thành phần: Không gian phủ sóng, Cự ly tương đối, Số chặng AODV, PDR và Độ trễ</em></p>
 </div>
 
 1. **Biểu đồ 1 — Không gian bố trí & Vùng phủ sóng Wi-Fi ($R = 300\text{ m}$):**
@@ -225,7 +220,7 @@ Số liệu được trích xuất trực tiếp từ tệp nhật ký thực ng
 
 <div align="center">
   <img src="docs/images/radar_relay_45s.png" alt="Giao diện Radar 2D HUD thực nghiệm" width="750"/>
-  <p><em>Hình 8: Giao diện Radar 2D HUD thời gian thực (Ảnh chụp màn hình thực nghiệm từ chương trình Python)</em></p>
+  <p><em>Hình 9: Giao diện Radar 2D HUD thời gian thực (Ảnh chụp màn hình thực nghiệm từ chương trình Python)</em></p>
 </div>
 
 Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thực nghiệm:
@@ -235,8 +230,54 @@ Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thự
 
 <div align="center">
   <img src="docs/images/hinh_5_3_netanim_side_by_side.png" alt="Mô phỏng NetAnim so sánh trực tiếp và chuyển tiếp" width="850"/>
-  <p><em>Hình 9: Đối sánh sóng vô tuyến không gian trên NetAnim: (Trái) Truyền trực tiếp 1 chặng tại t = 15.91s — (Phải) Chuyển tiếp 2 chặng qua UAV 1 tại t = 45.03s (Ảnh chụp thực nghiệm NetAnim)</em></p>
+  <p><em>Hình 10: Đối sánh sóng vô tuyến không gian trên NetAnim: (Trái) Truyền trực tiếp 1 chặng tại t = 15.91s — (Phải) Chuyển tiếp 2 chặng qua UAV 1 tại t = 45.03s (Ảnh chụp thực nghiệm NetAnim)</em></p>
 </div>
+
+---
+
+### 5.4. Kịch Bản Đối Chứng Tham Chiếu (Baseline Comparison — Không Dùng UAV Relay)
+
+Để có cơ sở thực chứng đối chiếu với giải pháp đề xuất, nhóm xây dựng và kiểm thử kịch bản tham chiếu **Baseline (Direct Link — Chỉ gồm 2 nút GCS và UAV Recon)** trong cùng điều kiện thực nghiệm: nạp cùng 586 mẫu tọa độ bay từ PX4 SITL và cùng lưu lượng mạng 1,139 gói UDP (128 Bytes @ 20 Hz).
+
+#### Bảng Đối Soát Hiệu Năng Thực Nghiệm (Baseline vs Đề Xuất)
+
+| Chỉ số kỹ thuật đo kiểm | Kịch bản Baseline (Không có Relay) | Đề xuất (Có Flying Relay Node) | Đánh giá Kỹ thuật |
+| :--- | :---: | :---: | :--- |
+| **Pha 1 ($x_2 \le 300\text{ m}$, $t \le 31.5\text{ s}$)** | PDR: **$100.00\%$** (589/589 gói)<br/>Độ trễ: **$0.116\text{ ms}$** | PDR: **$100.00\%$** (589/589 gói)<br/>Độ trễ: **$0.116\text{ ms}$** | Cả hai phương án đều truyền thẳng 1 chặng ổn định |
+| **Thời điểm ngắt kết nối trực tiếp** | $t = 31.57\text{ s}$ ($d_{02} = 300.87\text{ m}$) | $t = 31.57\text{ s}$ (Chuyển mạch sang Relay) | Đứt sóng khi cự ly vượt ngưỡng phủ sóng $300\text{ m}$ |
+| **Pha 2 ($x_2 > 300\text{ m}$, $t > 31.57\text{ s}$)** | PDR: **$0.00\%$** (0/550 gói nhận)<br/>Độ trễ: **Vô hạn** (Mất tuyến hoàn toàn) | PDR: **$99.82\%$** (549/550 gói nhận)<br/>Độ trễ: **$0.336\text{ ms}$** | **UAV Relay duy trì thông suốt toàn bộ liên lạc** |
+| **Toàn trình ($0 - 60\text{ s}$)** | PDR: **$51.71\%$** (589/1,139 gói) | PDR: **$99.91\%$** (1,138/1,139 gói) | Khôi phục toàn bộ lưu lượng bị mất ở vùng xa |
+| **Cự ly nút cổ chai lớn nhất** | **$500.9\text{ m}$** (Mất kết nối hoàn toàn) | **$251.8\text{ m}$** (Luôn trong tầm phủ sóng) | Giảm một nửa khoảng cách hình học nút cổ chai |
+
+#### Bằng Chứng Trực Quan Kịch Bản Đối Chứng (NetAnim & Wireshark)
+
+<div align="center">
+  <img src="docs/images/hinh_5_4_baseline_netanim.png" alt="Hoạt họa NetAnim kịch bản Baseline" width="850"/>
+  <p><em>Hình 11: Hoạt họa không gian mạng NetAnim kịch bản Baseline: (Trái) Truyền trực tiếp trong vùng phủ sóng tại t = 18.35s — (Phải) Mất kết nối khi UAV Recon vượt ngưỡng 300m tại t = 44.25s (Ảnh chụp thực nghiệm NetAnim)</em></p>
+</div>
+
+1. **Minh chứng trên NetAnim (Hình 11):**
+   - Tại $t = 18.35\text{ s}$: Nút GCS và UAV Recon duy trì liên kết trực tiếp ở cự ly $\approx 140\text{ m} \le 300\text{ m}$.
+   - Tại $t = 44.25\text{ s}$: UAV Recon bay ra cự ly $\approx 430\text{ m} > 300\text{ m}$, kênh truyền trực tiếp bị cô lập hoàn toàn do nằm ngoài phạm vi phủ sóng.
+
+<div align="center">
+  <img src="docs/images/hinh_5_5_baseline_wireshark.png" alt="Bắt gói tin Wireshark kịch bản Baseline" width="850"/>
+  <p><em>Hình 12: Kiểm chứng bắt gói tin Wireshark (uav-baseline-node-1-0.pcap): Luồng dữ liệu UDP dừng hẳn tại Frame 1244 (t = 31.405s, đúng 589 gói nhận)</em></p>
+</div>
+
+2. **Minh chứng trên Wireshark (Hình 12):**
+   - Bộ lọc `udp.port == 9000` xác nhận đúng **589 gói tin UDP** được tiếp nhận thành công (`Displayed: 589`).
+   - Gói tin cuối cùng nhận được là Frame số 1244 ở mốc thời gian $t = 31.405\text{ s}$ (Sequence number: 588, Identification: 0x024c). Kể từ sau giây thứ $31.4\text{ s}$ trở đi, không còn gói tin nào được ghi nhận.
+
+<div align="center">
+  <img src="docs/images/hinh_5_6_baseline_vs_relay_chart.png" alt="Đồ thị đối sánh Baseline vs Relay" width="850"/>
+  <p><em>Hình 13: Bộ đồ thị đối sánh hiệu năng toàn diện giữa Kịch bản Baseline (Không có Relay) và Giải pháp Đề xuất (Dynamic Midpoint Relay)</em></p>
+</div>
+
+3. **Phân tích Biểu đồ Đối sánh Hiệu năng (Hình 13):**
+   - **Khoảng cách nút cổ chai:** Baseline tăng tuyến tính lên $500.9\text{ m}$, trong khi giải pháp đề xuất khống chế cự ly tối đa dưới $251.8\text{ m}$.
+   - **Tỷ lệ nhận gói PDR:** Baseline giảm từ $100\%$ về $51.71\%$, trong khi phương pháp đề xuất giữ vững ở mức $99.91\%$.
+   - **Độ trễ truyền dẫn:** Baseline mất kết nối (độ trễ vô hạn ở pha 2), trong khi đề xuất duy trì độ trễ danh định $0.336\text{ ms}$.
 
 ---
 
@@ -318,6 +359,15 @@ netanim
 # Bấm File -> Open -> Chọn tệp results/uav_relay_animation.xml -> Bấm Play
 ```
 
+#### Bước 6: Chạy Kịch bản Đối chứng Baseline (Không dùng UAV Relay)
+```bash
+cd baseline_comparison
+bash run_baseline.sh
+python3 compare_results.py
+cd ..
+```
+*Lệnh trên sẽ chạy mô phỏng mạng trực tiếp 2 nút và in bảng đối sánh hiệu năng toàn diện ra màn hình.*
+
 ---
 
 ## 8. TÀI LIỆU THAM KHẢO
@@ -327,6 +377,18 @@ netanim
 3. **ns-3 Consortium:** *ns-3 Model Library (Release ns-3.41)*. Documentation on Wireless and Ad-hoc Routing Modules.
 4. **PX4 Development Team:** *PX4 User Guide & Multi-Vehicle SITL Simulation Documentation (v1.14)*.
 5. **Open Source Robotics Foundation (OSRF):** *Gazebo Classic Simulation Reference Manual*.
+
+---
+
+## 9. ĐIỂM NỔI BẬT & ĐÓNG GÓP KỸ THUẬT CỦA ĐỀ TÀI
+
+> [!IMPORTANT]
+> **Kết quả cốt lõi đạt được trong nghiên cứu:**
+> - **Mở rộng phạm vi tác chiến:** Kéo dài hành lang truyền thông từ $300\text{ m}$ lên **$500\text{ m}$** thực tế (ngưỡng hình học lý thuyết đạt **$550\text{ m}$**), giải quyết triệt để bài toán đứt gãy vô tuyến Line-of-Sight của UAV tầm xa.
+> - **Độ tin cậy truyền dẫn gần như tuyệt đối (PDR = 99.91%):** Trong toàn bộ hành trình $60\text{ s}$ với $1.139$ gói tin được phát đi, mạng thu nhận thành công **$1.138$ gói** (chỉ mất duy nhất 1 gói tin trong pha chuyển mạch định tuyến).
+> - **Độ trễ truyền dẫn cực thấp (Sub-millisecond Latency):** Độ trễ 1 chặng trực tiếp đạt **$0.116\text{ ms}$**; độ trễ qua trạm chuyển tiếp 2 chặng đạt **$0.336\text{ ms}$**.
+> - **Hội tụ định tuyến tức thời (16 ms Convergence):** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` trong đúng **$16.2\text{ ms}$** (tại $t = 31.6031\text{ s} \rightarrow 31.6193\text{ s}$), tạo đỉnh trễ tạm thời $2.45\text{ ms}$ rồi ổn định ngay lập tức.
+> - **Đồng mô phỏng 4 phân hệ liên kết khép kín:** Tích hợp thời gian thực giữa động lực học 3D (Gazebo), vi điều khiển bay công nghiệp (PX4 Autopilot SITL), giao thức mạng cấp gói (ns-3.41) và cầu nối truyền thông MAVLink/UDP.
 
 ---
 
