@@ -28,7 +28,7 @@ Trong các nhiệm vụ giám sát khẩn cấp, cứu hộ cứu nạn và trin
 ### 1.1. Thách thức kỹ thuật
 - **Suy hao môi trường truyền vô tuyến:** Công suất tín hiệu suy giảm phi tuyến theo nghịch đảo bình phương khoảng cách không gian tự do (theo mô hình truyền sóng Friis):
   $$P_r(d) = P_t \cdot G_t \cdot G_r \cdot \left(\frac{\lambda}{4\pi d}\right)^2$$
-- **Cự ly ranh giới $R = 300\text{ m}$:** Với công suất phát $P_t = 20\text{ dBm}$ và độ nhạy thu $P_{th} = -85\text{ dBm}$, cự ly tối đa mà GCS có thể kết nối trực tiếp tới UAV Trinh sát là $300\text{ m}$. Khi $d(\text{GCS}, \text{UAV 2}) > 300\text{ m}$, đường truyền trực tiếp bị ngắt hoàn toàn (PDR rơi thẳng đứng về $0\%$).
+- **Cự ly ranh giới $R = 300\text{ m}$ và Biên độ dự trữ Friis:** Theo mô hình lan truyền không gian tự do Friis, tại cự ly $d = 300\text{ m}$, công suất thu đạt $P_r(300\text{ m}) = -20.05 - 20\log_{10}(300) = -69.59\text{ dBm}$, cao hơn ngưỡng nhạy thu danh định ($P_{th} = -85.0\text{ dBm}$) một biên độ dự trữ pha-đinh (Fade Margin) là $15.41\text{ dB}$ (nếu chỉ dùng mô hình Friis thuần túy thì tầm phủ lý thuyết vươn tới $\approx 1.77\text{ km}$). Trong kịch bản ns-3, ranh giới $300\text{ m}$ được thiết lập bằng module `RangePropagationLossModel` đóng vai trò ngưỡng cắt cứng cự ly an toàn để mô phỏng điều kiện thực tế (nhiễu nền, che khuất và suy hao ngoài trời). Khi $d(\text{GCS}, \text{UAV 2}) > 300\text{ m}$, liên kết trực tiếp bị ngắt hoàn toàn (PDR rơi thẳng đứng về $0\%$).
 
 ### 1.2. Giải pháp UAV Trạm chuyển tiếp sóng cơ động (Flying Relay Node)
 Nhóm đề xuất giải pháp triển khai **UAV 1 (Relay Node)** đóng vai trò trạm chuyển tiếp sóng bay trên không:
@@ -57,10 +57,14 @@ Trong không gian ba chiều:
 Khoảng cách không gian 3 chiều giữa các thực thể:
 $$d_{02}(t) = \sqrt{x_2(t)^2 + (\Delta z)^2} = \sqrt{x_2(t)^2 + 30^2} = \sqrt{x_2(t)^2 + 900}$$
 $$d_{01}(t) = \sqrt{x_1(t)^2 + 30^2} = \sqrt{x_1(t)^2 + 900}$$
-$$d_{12}(t) = \sqrt{(x_2(t) - x_1(t))^2 + (z_2 - z_1)^2} = |x_2(t) - x_1(t)|$$
+$$d_{12}(t) = \sqrt{(x_2(t) - x_1(t))^2 + (z_2 - z_1)^2} = |x_2(t) - x_1(t)| = x_2(t) - x_1(t) \quad (\text{do } x_2 \ge x_1)$$
 
-Nghiệm tối ưu đạt được khi $d_{01}(t) \approx d_{12}(t)$, dẫn đến quy luật điều khiển vị trí trung điểm động:
+Giải phương trình cân bằng tối ưu hóa Min-Max:
+$$d_{01}(t) = d_{12}(t) \iff \sqrt{x_1(t)^2 + 30^2} = x_2(t) - x_1(t) \implies x_1^*(t) = \frac{x_2(t)^2 - 30^2}{2 x_2(t)}$$
+
+Tại cự ly cực đại $x_2 = 500\text{ m}$, nghiệm 3D giải tích chính xác là $x_1^* = \frac{500^2 - 30^2}{2 \times 500} = 249.1\text{ m}$. Sai lệch so với công thức xấp xỉ 1D $x_1 = x_2/2 = 250\text{ m}$ chỉ là $0.9\text{ m}$ ($< 0.36\%$). Do đó, hệ thống áp dụng quy luật điều khiển bám trung điểm có bão hòa:
 $$x_1^*(t) = \min\left( \frac{x_2(t)}{2},\ 250\text{ m} \right)$$
+Mốc bão hòa $x_{1,\text{hold}} = 250\text{ m}$ đại diện cho sự đánh đổi an toàn công trình, giữ UAV 1 nằm sâu trong bán kính phủ sóng $300\text{ m}$ của GCS (biên dự phòng an toàn $48\text{ m}$) và đảm bảo đối xứng cự ly với UAV 2.
 
 <div align="center">
   <img src="docs/images/hinh_3_1_minmax.png" alt="Mô hình tối ưu hóa Min-Max 3D" width="750"/>
@@ -84,7 +88,7 @@ Quá trình chuyển tiếp mạng được quản lý bởi một máy trạng 
 
 ## 3. KIẾN TRÚC HỆ THỐNG ĐỒNG MÔ PHỎNG
 
-Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Simulation) phân tán, tích hợp chặt chẽ giữa 4 phân hệ kỹ thuật:
+Hệ thống được thiết kế theo kiến trúc đồng mô phỏng theo vết (Trace-driven Co-Simulation), kết hợp giữa 4 phân hệ kỹ thuật:
 
 <div align="center">
   <img src="docs/images/hinh_2_1_kien_truc.png" alt="Kiến trúc hệ thống đồng mô phỏng 4 phân hệ" width="420"/>
@@ -103,11 +107,11 @@ Hệ thống được thiết kế theo kiến trúc đồng mô phỏng (Co-Sim
    - Chạy 2 thực thể firmware bay độc lập trên 2 cổng UDP riêng biệt (`14540` cho UAV 1 và `14541` cho UAV 2).
    - Tự động hóa chế độ bay Offboard, bám quỹ đạo trung điểm động và truyền dữ liệu MAVLink.
 3. **Phân hệ Cầu nối Đồng bộ (Co-Simulation Bridge - Python UDP Socket):**
-   - Lắng nghe gói tin Telemetry MAVLink trên cổng `UDP 19999` với tần số $10\text{ Hz}$.
-   - Chuyển đổi hệ tọa độ Đông-Bắc-Lên (ENU) sang hệ tọa độ không gian mạng `WaypointMobilityModel` trong ns-3.
+   - Lắng nghe bản tin Telemetry định dạng JSON trên cổng `UDP 19999` với tần số $10\text{ Hz}$ (trích xuất từ luồng viễn trắc MAVLink của bộ điều khiển bay).
+   - Cập nhật vị trí viễn trắc và trực quan hóa trên Radar 2D; đồng thời phân hệ ns-3 nạp tệp quỹ đạo 3D thực nghiệm (`px4_flight_telemetry.csv`) vào mô hình `WaypointMobilityModel` để bảo đảm tính chính xác và khả năng tái lập 100% của chuyển động không gian mạng.
 4. **Phân hệ Mô phỏng Mạng viễn thông (ns-3.41 Network Simulator):**
-   - Tầng Vật lý & MAC: Mô phỏng chuẩn Wi-Fi Ad-hoc **IEEE 802.11n** (băng tần $2.4\text{ GHz}$, cơ chế điều chế và mã hóa HtMcs3).
-   - Mô hình truyền sóng: Kết hợp `RangePropagationLossModel` ($R = 300\text{ m}$) và `FriisPropagationLossModel`.
+   - Tầng Vật lý & MAC: Mô phỏng chuẩn Wi-Fi Ad-hoc **IEEE 802.11n** (cơ chế điều chế và mã hóa HtMcs3; tần số tính suy hao công suất trong FriisPropagationLossModel được cấu hình tường minh ở mức $2.4\text{ GHz}$, tầng PHY ns-3 sử dụng thiết lập mặc định của chuẩn 802.11n).
+   - Mô hình truyền sóng: Kết hợp `RangePropagationLossModel` ($R = 300\text{ m}$) làm ngưỡng cắt cứng cự ly và `FriisPropagationLossModel`.
    - Ngăn xếp giao thức: Định tuyến Ad-hoc AODV (RFC 3561), tầng mạng IPv4 và luồng dữ liệu Telemetry UDP (kích thước gói $128\text{ Bytes}$, tần số $20\text{ Hz}$).
 
 <div align="center">
@@ -137,7 +141,7 @@ UAV_Relay_Project/
 ├── co_simulation/                     # Phân hệ Cầu nối & Xử lý Dữ liệu Đồng mô phỏng
 │   ├── live_visualizer.py             # Radar 2D HUD trực quan hóa chuyển mạch sóng
 │   ├── plot_results.py                # Xử lý số liệu đo kiểm và xuất đồ thị phân tích
-│   └── relay_network_bridge.py        # Socket UDP tiếp nhận MAVLink và đồng bộ vị trí
+│   └── relay_network_bridge.py        # Socket UDP tiếp nhận JSON qua cổng 19999 và điều phối viễn trắc
 ├── docs/                              # Tài liệu kỹ thuật và sơ đồ hệ thống
 │   └── images/                        # Sơ đồ bản vẽ do nhóm thiết kế và ảnh chụp thực nghiệm
 │       ├── gazebo_3d_simulation.png   # Ảnh chụp môi trường 3D Gazebo thực nghiệm
@@ -185,8 +189,9 @@ Số liệu được trích xuất trực tiếp từ các tệp nhật ký th�
 | **Số gói tin phát / nhận** | **589 / 589 gói** | **550 / 0 gói nhận** | **550 / 549 gói nhận** | Khôi phục 99.82% gói ở vùng xa |
 | **Tỷ lệ nhận gói tin (PDR)** | **100.00%** | **0.00%** (Rớt toàn bộ) | **99.82%** (Toàn trình: **99.91%**) | Tăng PDR toàn trình từ 51.71% lên 99.91% |
 | **Độ trễ truyền dẫn trung bình** | **$0.116\text{ ms}$** | $\infty$ (Mất tuyến hoàn toàn) | **$0.336\text{ ms}$** | Duy trì độ trễ thời gian thực cực thấp |
-| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.47\text{ ms}$** (tại $t = 32.0\text{ s}$) | Trễ trung bình cửa sổ 0.5s (gói chờ trễ thực tế $\approx 20\text{ ms}$) |
-| **Thời gian hội tụ AODV** | $0\text{ ms}$ | Thất bại | **$6.1\text{ ms}$** (RREP) / **$16.5\text{ ms}$** (Gói 1) | Trao đổi RREQ/RREP và chuyển tiếp gói tức thời |
+| **Thời gian gián đoạn liên kết thực tế** | $0\text{ ms}$ | Toàn phần ($t > 31.5\text{ s}$) | **$69.4\text{ ms}$** ($31.5001\text{ s} \rightarrow 31.5695\text{ s}$) | Khoảng thời gian mất tín hiệu thực tế ở tầng ứng dụng |
+| **Thời gian hội tụ định tuyến AODV** | $0\text{ ms}$ | Thất bại | **$6.1\text{ ms}$** (RREP) / **$16.5\text{ ms}$** (Gói 1) | Hoàn tất chu trình RREQ $\rightarrow$ RREP và chuyển tiếp gói đầu |
+| **Đỉnh trễ hội tụ (Peak Latency)** | Không có | Không có | **$2.47\text{ ms}$** (tại $t = 32.0\text{ s}$) | Trễ trung bình cửa sổ 0.5s (gói chờ trễ thực tế $\approx 19.4\text{ ms} \approx 20\text{ ms}$) |
 | **Băng thông cấu hình (Offered Load)** | $20.48\text{ Kbps}$ | $0.00\text{ Kbps}$ | **$20.48\text{ Kbps}$** (20 pkts/s $\times$ 128 B) | Luồng Telemetry UDP danh định |
 | **Thông lượng thực tế (Throughput)** | **$\approx 20.48\text{ Kbps}$** | $0.00\text{ Kbps}$ | **$\approx 20.44\text{ Kbps}$** | Băng thông đạt xấp xỉ 100% danh định |
 | **Trạng thái liên lạc** | Trực tiếp ổn định | Mất kiểm soát phương tiện | **Liên tục, thông suốt toàn phần** | Giải quyết triệt để nút cổ chai cự ly |
@@ -205,8 +210,8 @@ Số liệu được trích xuất trực tiếp từ các tệp nhật ký th�
 1. **Biểu đồ 1 — Không gian bố trí & Vùng phủ sóng Wi-Fi ($R = 300\text{ m}$):**
    - Vùng phủ sóng của GCS (vòng tròn xanh lá) và UAV 1 Relay (vòng tròn xanh dương) tạo thành hành lang bao phủ liên tục. Khi UAV 1 chốt tại vị trí $x_1 = 250\text{ m}$, vùng phủ sóng mở rộng của UAV 1 vươn tới $x = 550\text{ m}$, bao bọc trọn vẹn toàn bộ hành trình trinh sát của UAV 2 ($0 \rightarrow 500\text{ m}$).
 2. **Biểu đồ 2 — Khoảng cách tương đối theo thời gian:**
-   - Tại mốc thời gian $t = 31.57\text{ s}$, cự ly 3D trực tiếp giữa GCS và UAV 2 ($d_{02}$, đường màu đỏ) chạm ngưỡng $300.87\text{ m}$, kích hoạt sự kiện ngắt kết nối trực tiếp.
-   - Nhờ thuật toán bám trung điểm, cự ly GCS $\rightarrow$ UAV 1 ($d_{01}$, đường màu xanh lá) và UAV 1 $\rightarrow$ UAV 2 ($d_{12}$, đường màu xanh dương) tối đa chỉ đạt $251.8\text{ m}$ và $250.0\text{ m}$, luôn nằm sâu trong bán kính an toàn ($< 300\text{ m}$).
+   - Tại mốc thời gian $t \approx 31.5\text{ s}$ (gói trực tiếp đầu tiên bị mất lúc $t = 31.5001\text{ s}$, cự ly ns-3 đạt $300.07\text{ m}$, mẫu viễn trắc telemetry đạt $300.87\text{ m}$ tại $t = 31.57\text{ s}$), cự ly 3D trực tiếp giữa GCS và UAV 2 ($d_{02}$, đường màu đỏ) vượt ngưỡng $300\text{ m}$, kích hoạt sự kiện đứt liên kết trực tiếp và khởi động định tuyến AODV.
+   - Nhờ thuật toán bám trung điểm, cự ly GCS $\rightarrow$ UAV 1 ($d_{01}$, đường màu xanh lá) và UAV 1 $\rightarrow$ UAV 2 ($d_{12}$, đường màu xanh dương) cực đại chỉ đạt $253.0\text{ m}$ và $251.3\text{ m}$ trong pha động, và ổn định tại $251.8\text{ m}$ và $250.0\text{ m}$ khi đến đích, luôn nằm sâu trong bán kính an toàn ($< 300\text{ m}$).
 3. **Biểu đồ 3 — Số chặng định tuyến AODV (Hop Count):**
    - Đồ thị thể hiện bước chuyển bậc thang chính xác: $1\text{ hop}$ trong vùng $x_2 \le 300\text{ m}$, và chuyển mạch tức thời sang $2\text{ hops}$ khi $x_2 > 300\text{ m}$.
 4. **Biểu đồ 4 — Tỷ lệ nhận gói PDR và Độ trễ truyền dẫn:**
@@ -244,10 +249,10 @@ Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thự
 | Chỉ số kỹ thuật đo kiểm | Kịch bản Baseline (Không có Relay) | Đề xuất (Có Flying Relay Node) | Đánh giá Kỹ thuật |
 | :--- | :---: | :---: | :--- |
 | **Pha 1 ($x_2 \le 300\text{ m}$, $t \le 31.5\text{ s}$)** | PDR: **$100.00\%$** (589/589 gói)<br/>Độ trễ: **$0.116\text{ ms}$** | PDR: **$100.00\%$** (589/589 gói)<br/>Độ trễ: **$0.116\text{ ms}$** | Cả hai phương án đều truyền thẳng 1 chặng ổn định |
-| **Thời điểm ngắt kết nối trực tiếp** | $t = 31.57\text{ s}$ ($d_{02} = 300.87\text{ m}$) | $t = 31.57\text{ s}$ (Chuyển mạch sang Relay) | Đứt sóng khi cự ly vượt ngưỡng phủ sóng $300\text{ m}$ |
-| **Pha 2 ($x_2 > 300\text{ m}$, $t > 31.57\text{ s}$)** | PDR: **$0.00\%$** (0/550 gói nhận)<br/>Độ trễ: **Vô hạn** (Mất tuyến hoàn toàn) | PDR: **$99.82\%$** (549/550 gói nhận)<br/>Độ trễ: **$0.336\text{ ms}$** | **UAV Relay duy trì thông suốt toàn bộ liên lạc** |
+| **Thời điểm ngắt kết nối trực tiếp** | $t \approx 31.5\text{ s}$ ($d_{02} = 300.07\text{ m}$) | $t \approx 31.5\text{ s}$ (Chuyển mạch sang Relay) | Đứt sóng khi cự ly vượt ngưỡng phủ sóng $300\text{ m}$ |
+| **Pha 2 ($x_2 > 300\text{ m}$, $t > 31.5\text{ s}$)** | PDR: **$0.00\%$** (0/550 gói nhận)<br/>Độ trễ: **Vô hạn** (Mất tuyến hoàn toàn) | PDR: **$99.82\%$** (549/550 gói nhận)<br/>Độ trễ: **$0.336\text{ ms}$** | **UAV Relay duy trì thông suốt toàn bộ liên lạc** |
 | **Toàn trình ($0 - 60\text{ s}$)** | PDR: **$51.71\%$** (589/1,139 gói) | PDR: **$99.91\%$** (1,138/1,139 gói) | Khôi phục toàn bộ lưu lượng bị mất ở vùng xa |
-| **Cự ly nút cổ chai lớn nhất** | **$500.9\text{ m}$** (Mất kết nối hoàn toàn) | **$251.8\text{ m}$** (Luôn trong tầm phủ sóng) | Giảm một nửa khoảng cách hình học nút cổ chai |
+| **Cự ly nút cổ chai lớn nhất** | **$503.3\text{ m}$** (Ổn định ở $500.9\text{ m}$) | **$253.0\text{ m}$** (Ổn định ở $251.8\text{ m}$) | Giảm một nửa khoảng cách hình học nút cổ chai (độ lợi $5.97\text{ dB}$) |
 
 #### Bằng Chứng Trực Quan Kịch Bản Đối Chứng (NetAnim & Wireshark)
 
@@ -257,17 +262,17 @@ Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thự
 </div>
 
 1. **Minh chứng trên NetAnim (Hình 11):**
-   - Tại $t = 18.35\text{ s}$: Nút GCS và UAV Recon duy trì liên kết trực tiếp ở cự ly $\approx 140\text{ m} \le 300\text{ m}$.
+   - Tại $t = 18.35\text{ s}$: Nút GCS và UAV Recon duy trì liên kết trực tiếp ở cự ly chính xác $146.0\text{ m} \le 300\text{ m}$ ($146.01\text{ m}$ theo số liệu chuỗi viễn trắc telemetry thực tế).
    - Tại $t = 44.25\text{ s}$: UAV Recon bay ra cự ly $\approx 430\text{ m} > 300\text{ m}$, kênh truyền trực tiếp bị cô lập hoàn toàn do nằm ngoài phạm vi phủ sóng.
 
 <div align="center">
   <img src="docs/images/hinh_5_5_baseline_wireshark.png" alt="Bắt gói tin Wireshark kịch bản Baseline" width="850"/>
-  <p><em>Hình 12: Kiểm chứng bắt gói tin Wireshark (uav-baseline-node-1-0.pcap): Luồng dữ liệu UDP dừng hẳn tại Frame 1244 (t = 31.405s, đúng 589 gói nhận)</em></p>
+  <p><em>Hình 12: Kiểm chứng bắt gói tin Wireshark (uav-baseline-node-1-0.pcap): Luồng dữ liệu UDP dừng hẳn tại Frame 1244 (thời gian mô phỏng tuyệt đối t = 31.4502s, tương ứng 31.405s trên Wireshark, đúng 589 gói nhận)</em></p>
 </div>
 
 2. **Minh chứng trên Wireshark (Hình 12):**
    - Bộ lọc `udp.port == 9000` xác nhận đúng **589 gói tin UDP** được tiếp nhận thành công (`Displayed: 589`).
-   - Gói tin cuối cùng nhận được là Frame số 1244 ở mốc thời gian $t = 31.405\text{ s}$ (Sequence number: 588, Identification: 0x024c). Kể từ sau giây thứ $31.4\text{ s}$ trở đi, không còn gói tin nào được ghi nhận.
+   - Gói tin cuối cùng nhận được là Frame số 1244 ở mốc thời gian mô phỏng tuyệt đối $t = 31.4502\text{ s}$ (hiển thị tương đối $31.405\text{ s}$ trên Wireshark do khung đầu tiên bắt lúc $t = 0.0449\text{ s}$, Sequence number: 588, Identification: 0x024c). Kể từ sau giây thứ $31.4\text{ s}$ trở đi, không còn gói tin nào được ghi nhận.
 
 <div align="center">
   <img src="docs/images/hinh_5_6_baseline_vs_relay_chart.png" alt="Đồ thị đối sánh Baseline vs Relay" width="850"/>
@@ -275,7 +280,7 @@ Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thự
 </div>
 
 3. **Phân tích Biểu đồ Đối sánh Hiệu năng (Hình 13):**
-   - **Khoảng cách nút cổ chai:** Baseline tăng tuyến tính lên $500.9\text{ m}$, trong khi giải pháp đề xuất khống chế cự ly tối đa dưới $251.8\text{ m}$.
+   - **Khoảng cách nút cổ chai:** Baseline tăng tuyến tính lên $503.3\text{ m}$ (ổn định ở $500.9\text{ m}$), trong khi giải pháp đề xuất khống chế cự ly tối đa dưới $253.0\text{ m}$ (ổn định ở $251.8\text{ m}$), mang lại độ lợi suy hao vô tuyến $5.97\text{ dB}$ theo công thức Friis: $20\log_{10}(500.9 / 251.8) = 5.97\text{ dB}$.
    - **Tỷ lệ nhận gói PDR:** Baseline giảm từ $100\%$ về $51.71\%$, trong khi phương pháp đề xuất giữ vững ở mức $99.91\%$.
    - **Độ trễ truyền dẫn:** Baseline mất kết nối (độ trễ vô hạn ở pha 2), trong khi đề xuất duy trì độ trễ danh định $0.336\text{ ms}$.
 
@@ -287,23 +292,22 @@ Giao diện Radar HUD phản ánh chính xác trạng thái hoạt động thự
 
 ### 6.1. Bảng Truy vết Gói tin Chi tiết trong Pha Chuyển mạch (Wireshark Trace)
 
-Bộ lọc Wireshark: `aodv || (ip.proto == 17 && udp.port == 9000)` trên tệp `results/uav-relay-node-2-0.pcap`:
+Bộ lọc Wireshark: `aodv || (ip.proto == 17 && udp.port == 9000)` trên tệp bắt gói tin trạm phát GCS `results/uav-relay-node-0-0.pcap` (nơi ghi nhận đầy đủ cả bản tin RREQ phát đi, RREP phản hồi về và luồng UDP; đối chiếu tương ứng trên `results/uav-relay-node-1-0.pcap` và `results/uav-relay-node-2-0.pcap`):
 
 | STT Gói | Mốc Thời Gian (s) | Nút Nguồn (IP) | Nút Đích (IP) | Giao thức | Thông tin Gói tin / Cờ hiệu | Trường TTL | Đánh giá Kỹ thuật |
 | :---: | :---: | :---: | :---: | :---: | :--- | :---: | :--- |
 | **589** | `31.4502` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **64** | Gói tin trực tiếp thành công cuối cùng của Pha 1 |
 | **-** | `31.5000` | - | - | - | $d_{02} = 300.07\text{ m} > 300\text{ m}$ | - | Vượt ngưỡng cự ly vô tuyến danh định (PDR rơi về 0%) |
-| **590** | `31.5001 - 31.5228` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **-** | **Gói tin duy nhất thất lạc** (phát lại 7 lần tầng MAC thất bại) |
+| **590** | `31.5001 - 31.5228` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **-** | **Gói tin duy nhất thất lạc** (phát lại tầng MAC thất bại, ghi nhận 5 khung tái truyền bổ sung trên PCAP giải thích chênh lệch $1.144 - 1.139 = 5$) |
 | **RREQ** | `31.5531` | `10.1.1.1` (GCS) | `255.255.255.255` | AODV | Route Request (Dest: 10.1.1.3, TTL=3) | **3** | GCS phát quảng bá tìm đường sau khi rớt liên kết trực tiếp |
-| **RREP** | `31.5592` | `10.1.1.2` (Relay)| `10.1.1.1` (GCS) | AODV | Route Reply (Hop Count: 2, TTL=1) | **1** | UAV 1 Relay gửi phản hồi tuyến đường về GCS (**$\Delta t = 6.1\text{ ms}$**) |
-| **ACK** | `31.5692` | `10.1.1.1` (GCS) | `10.1.1.2` (Relay)| AODV | RREP-ACK (AODV Type 4) | **1** | GCS xác nhận tuyến đường 2 chặng qua UAV 1 |
-| **591** | `31.5695` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | **Gói tin chuyển tiếp đầu tiên qua UAV 1** ($\Delta t = 16.5\text{ ms}$) |
+| **RREP** | `31.5592` | `10.1.1.2` (Relay)| `10.1.1.1` (GCS) | AODV | Route Reply (Hop Count: 1, TTL=1) | **1** | UAV 1 Relay gửi phản hồi tuyến về GCS (trường Hop Count = 1 trong gói tin chỉ cự ly 1-hop từ Relay tới đích, $\Delta t = 6.1\text{ ms}$) |
+| **591** | `31.5695` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | **Gói tin chuyển tiếp đầu tiên qua UAV 1** ($\Delta t = 16.5\text{ ms}$ từ khi phát RREQ; tổng gián đoạn liên kết là $69.4\text{ ms}$ tính từ $31.5001\text{ s}$) |
 | **...** | `31.6004 - 60.0` | `10.1.1.1` (GCS) | `10.1.1.3` (UAV 2) | UDP | Telemetry Data (128 B) | **63** | Tuyến 2 chặng ổn định đến hết hành trình (550 gói qua Relay) |
 
 > [!TIP]
 > **Quy luật biến đổi trường Time-to-Live (TTL):**
-> - **$0\text{ s} \le t \le 31.5\text{ s}$:** Gói tin nhận được có `TTL = 64` $\rightarrow$ Đi thẳng $1\text{ hop}$ từ GCS tới UAV 2.
-> - **$32.0\text{ s} \le t \le 60.0\text{ s}$:** Gói tin nhận được có `TTL = 63` $\rightarrow$ Đã được định tuyến chuyển tiếp qua nút trung gian UAV 1 (UAV 1 giảm 1 đơn vị TTL theo tiêu chuẩn IPv4: $64 - 1 = 63$).
+> - **$0\text{ s} \le t \le 31.4502\text{ s}$:** Gói tin nhận được có `TTL = 64` $\rightarrow$ Đi thẳng $1\text{ hop}$ trực tiếp từ GCS tới UAV 2.
+> - **$31.5695\text{ s} \le t \le 60.0\text{ s}$:** Gói tin nhận được có `TTL = 63` $\rightarrow$ Đã được định tuyến chuyển tiếp qua nút trung gian UAV 1 (gói relay đầu tiên đến đích lúc $t = 31.5695\text{ s}$; UAV 1 giảm 1 đơn vị TTL theo tiêu chuẩn IPv4: $64 - 1 = 63$).
 
 ---
 
@@ -328,13 +332,13 @@ Mở 3 cửa sổ Terminal độc lập:
 # Terminal 1: Khởi động 2 Quadrotor Iris trong môi trường Gazebo 3D
 bash px4_gazebo/launch_sitl_multi.sh
 
-# Terminal 2: Khởi động Cầu nối Co-Simulation Bridge tiếp nhận tọa độ MAVLink
+# Terminal 2: Khởi động Cầu nối Co-Simulation Bridge tiếp nhận JSON telemetry qua UDP Port 19999
 python3 co_simulation/relay_network_bridge.py
 
 # Terminal 3: Thực thi kịch bản điều khiển bay tự động đa phương tiện
 python3 px4_gazebo/px4_multi_vehicle.py
 ```
-*(Ghi chú: Nếu máy tính không cài sẵn bộ công cụ PX4/Gazebo nặng, có thể thêm cờ `--mock` vào lệnh Terminal 3 để chạy giao diện Radar kiểm thử với dữ liệu quỹ đạo mô phỏng chuẩn hóa).*
+*(Ghi chú: Nếu môi trường kiểm thử độc lập không khởi động toàn bộ cụm SITL, có thể thêm cờ `--mock` vào lệnh Terminal 3 để chạy giao diện Radar kiểm thử với luồng dữ liệu JSON mô phỏng chuẩn hóa).*
 
 #### Bước 2: Chạy Mô phỏng Mạng Không dây AODV trên ns-3
 ```bash
@@ -373,11 +377,18 @@ cd ..
 
 ## 8. TÀI LIỆU THAM KHẢO
 
-1. **RFC 3561:** Perkins, C., Belding-Royer, E., & Das, S. (2003). *Ad hoc On-Demand Distance Vector (AODV) Routing*. IETF.
-2. **IEEE 802.11n Standard:** IEEE Standard for Information technology - Telecommunications and information exchange between systems - Local and metropolitan area networks - Specific requirements - Part 11: Wireless LAN Medium Access Control (MAC) and Physical Layer (PHY) Specifications.
-3. **ns-3 Consortium:** *ns-3 Model Library (Release ns-3.41)*. Documentation on Wireless and Ad-hoc Routing Modules.
-4. **PX4 Development Team:** *PX4 User Guide & Multi-Vehicle SITL Simulation Documentation (v1.14)*.
-5. **Open Source Robotics Foundation (OSRF):** *Gazebo Classic Simulation Reference Manual*.
+1. **RFC 3561:** C. Perkins, E. Belding-Royer, and S. Das, "Ad hoc On-Demand Distance Vector (AODV) Routing," IETF RFC 3561, Jul. 2003.
+2. **PX4 Autopilot:** L. Meier, D. Honegger, and M. Pollefeys, "PX4: A Node-Based Multithreaded Open Source Robotics Framework for Deeply Embedded Platforms," in Proc. IEEE Int. Conf. Robotics and Automation (ICRA), Seattle, WA, USA, 2015, pp. 6235–6240.
+3. **ns-3 Simulator:** G. F. Riley and T. R. Henderson, "The ns-3 Network Simulator," in Modeling and Tools for Network Simulation, K. Wehrle, M. Güneş, and J. Gross, Eds. Berlin, Germany: Springer, 2010, pp. 15–34.
+4. **MAVLink Protocol:** L. Meier et al., "MAVLink: Micro Air Vehicle Communication Protocol," Dronecode Project, 2020. [Online]. Available: https://mavlink.io/
+5. **FANET Survey:** I. Bekmezci, O. K. Sahingoz, and Ş. Temel, "Flying Ad-Hoc Networks (FANETs): A survey," Ad Hoc Networks, vol. 11, no. 3, pp. 1254–1270, May 2013.
+6. **IEEE 802.11n Standard:** IEEE Standard for Information Technology, "IEEE Standard 802.11-2020: Wireless LAN Medium Access Control (MAC) and Physical Layer (PHY) Specifications," IEEE, Feb. 2021.
+7. **Friis Transmission Formula:** H. T. Friis, "A Note on a Simple Transmission Formula," Proc. IRE, vol. 34, no. 5, pp. 254–256, May 1946.
+8. **Gazebo Simulator:** N. Koenig and A. Howard, "Design and use paradigms for Gazebo, an open-source multi-robot simulator," in Proc. IEEE/RSJ Int. Conf. Intell. Robots Syst. (IROS), Sendai, Japan, 2004, pp. 2149–2154.
+9. **UAV Communications:** Y. Zeng, R. Zhang, and T. J. Lim, "Wireless communications with unmanned aerial vehicles: Opportunities and challenges," IEEE Commun. Mag., vol. 54, no. 5, pp. 36–42, May 2016.
+10. **ROS-NetSim Framework:** M. Calvo-Fullana, D. Mox, A. Pyattaev, J. Fink, V. Kumar, and A. Ribeiro, "ROS-NetSim: A framework for the integration of robotic and network simulators," IEEE Robot. Autom. Lett., vol. 6, no. 2, pp. 1120–1127, Apr. 2021, doi: 10.1109/LRA.2021.3056347.
+11. **FlyNetSim Framework:** S. Baidya, Z. Shaikh, and M. Levorato, "FlyNetSim: An open source synchronized UAV network simulator based on ns-3 and ArduPilot," in Proc. 21st ACM Int. Conf. Modeling, Analysis and Simulation of Wireless and Mobile Systems, 2018, pp. 37–45.
+12. **RFC 3626 (OLSR):** T. Clausen and P. Jacquet, "Optimized Link State Routing Protocol (OLSR)," IETF RFC 3626, Oct. 2003.
 
 ---
 
@@ -386,10 +397,10 @@ cd ..
 > [!IMPORTANT]
 > **Kết quả cốt lõi đạt được trong nghiên cứu:**
 > - **Mở rộng phạm vi tác chiến:** Kéo dài hành lang truyền thông từ $300\text{ m}$ lên **$500\text{ m}$** thực tế (ngưỡng hình học lý thuyết đạt **$550\text{ m}$**), giải quyết triệt để bài toán đứt gãy vô tuyến Line-of-Sight của UAV tầm xa.
-> - **Độ tin cậy truyền dẫn gần như tuyệt đối (PDR = 99.91%):** Trong toàn bộ hành trình $60\text{ s}$ với $1.139$ gói tin được phát đi, mạng thu nhận thành công **$1.138$ gói** (chỉ mất duy nhất 1 gói tin trong pha chuyển mạch định tuyến).
+> - **Độ tin cậy truyền dẫn rất cao (PDR = 99.91% trong kịch bản kiểm thử):** Trong toàn bộ hành trình $60\text{ s}$ với $1.139$ gói tin được phát đi, mạng thu nhận thành công **$1.138$ gói** (chỉ mất duy nhất 1 gói tin trong pha chuyển mạch định tuyến).
 > - **Độ trễ truyền dẫn cực thấp (Sub-millisecond Latency):** Độ trễ 1 chặng trực tiếp đạt **$0.116\text{ ms}$**; độ trễ qua trạm chuyển tiếp 2 chặng đạt **$0.336\text{ ms}$**.
-> - **Hội tụ định tuyến tức thời (16.5 ms Convergence):** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` chỉ trong **$6.1\text{ ms}$** ($t = 31.5531\text{ s} \rightarrow 31.5592\text{ s}$) và chuyển tiếp gói tin dữ liệu đầu tiên qua Relay trong **$16.5\text{ ms}$** ($t = 31.5695\text{ s}$). Gói tin xếp hàng chờ trong lúc tìm đường có trễ thực tế $\approx 20\text{ ms}$ (đỉnh trễ trung bình cửa sổ 0.5s đạt $2.47\text{ ms}$ rồi ổn định ngay lập tức về $0.336\text{ ms}$).
-> - **Đồng mô phỏng 4 phân hệ liên kết khép kín:** Tích hợp thời gian thực giữa động lực học 3D (Gazebo), vi điều khiển bay công nghiệp (PX4 Autopilot SITL), giao thức mạng cấp gói (ns-3.41) và cầu nối truyền thông MAVLink/UDP.
+> - **Hội tụ định tuyến tức thời & Phân định độ trễ:** AODV tự động phát hiện mất kết nối và hoàn tất chu trình khám phá tuyến đường `RREQ - RREP` chỉ trong **$6.1\text{ ms}$** ($t = 31.5531\text{ s} \rightarrow 31.5592\text{ s}$) và chuyển tiếp gói tin dữ liệu đầu tiên qua Relay trong **$16.5\text{ ms}$** ($t = 31.5695\text{ s}$). Tổng thời gian gián đoạn dịch vụ thực tế là **$69.4\text{ ms}$** (tính từ thời điểm gói tin trực tiếp đầu tiên bị mất lúc $t = 31.5001\text{ s}$). Gói tin xếp hàng chờ trong lúc tìm đường có trễ thực tế $\approx 19.4\text{ ms} \approx 20\text{ ms}$ (đỉnh trễ trung bình cửa sổ 0.5s đạt $2.47\text{ ms}$ rồi ổn định ngay lập tức về $0.336\text{ ms}$).
+> - **Đồng mô phỏng liên phân hệ theo vết viễn trắc (Trace-driven Co-Simulation):** Phối hợp hiệu quả theo vết viễn trắc giữa động lực học 3D (Gazebo), vi điều khiển bay công nghiệp (PX4 Autopilot SITL), giao thức mạng cấp gói tin (ns-3.41) và cầu nối truyền thông UDP Socket (Port 19999).
 
 ---
 
