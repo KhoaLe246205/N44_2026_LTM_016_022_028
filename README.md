@@ -515,6 +515,6 @@ cd ..
 <div align="center">
 
 **Bản quyền đề tài © 2026 thuộc về Nhóm nghiên cứu N44**  
-*Khoa Công nghệ Thông tin — Đồ án Học phần Lập Trình Mạng*
+*Khoa Điện tử và Trí tuệ nhân tạo — Đồ án Học phần Lập Trình Mạng*
 
 </div>
