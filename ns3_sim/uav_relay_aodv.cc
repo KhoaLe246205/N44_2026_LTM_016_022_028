@@ -29,6 +29,7 @@ double g_totalDelaySumMs = 0.0;
 uint32_t g_delayCount = 0;
 Time g_lastRxTime = Seconds(0.0);
 std::ofstream g_csvLog;
+double g_rangeCutoff = 300.0;
 
 // Lưu timestamp phát theo Packet UID để tính độ trễ end-to-end
 std::map<uint64_t, Time> g_txTimestamps;
@@ -152,17 +153,17 @@ void MonitorNetworkState(NodeContainer nodes, Ptr<OutputStreamWrapper> routingSt
     double dist_1_2 = GetEuclideanDist(pos1, pos2);
 
     int actualHops = g_currentActualHops;
-    if (dist_0_2 > 300.0)
+    if (dist_0_2 > g_rangeCutoff)
     {
         actualHops = 2;
     }
-    else if (dist_0_2 <= 300.0 && g_currentActualHops == 1)
+    else if (dist_0_2 <= g_rangeCutoff && g_currentActualHops == 1)
     {
         actualHops = 1;
     }
 
     std::string routeMode = (actualHops == 1) ? "DIRECT (1-hop)" : "RELAY via UAV 1 (2-hop)";
-    bool directOk = (dist_0_2 <= 300.0);
+    bool directOk = (dist_0_2 <= g_rangeCutoff);
 
     double pdrPercent = 100.0;
     if (g_packetsSent > 0)
@@ -216,14 +217,13 @@ int main(int argc, char *argv[])
 {
     double simTime = 60.0;
     double uavSpeed = 10.0;
-    double rangeCutoff = 300.0;
     bool enableNetAnim = true;
     bool enablePcap = true;
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("simTime", "Total simulation time", simTime);
     cmd.AddValue("uavSpeed", "Speed of Recon UAV (m/s)", uavSpeed);
-    cmd.AddValue("rangeCutoff", "Wi-Fi radio range (meters)", rangeCutoff);
+    cmd.AddValue("rangeCutoff", "Wi-Fi radio range (meters)", g_rangeCutoff);
     cmd.AddValue("enableNetAnim", "Export NetAnim trace", enableNetAnim);
     cmd.AddValue("enablePcap", "Export PCAP files", enablePcap);
     cmd.Parse(argc, argv);
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
     std::cout << " - Node 0: Tram mat dat (GCS) tai (0, 0, 0)" << std::endl;
     std::cout << " - Node 1: UAV Relay (Dynamic Midpoint: x1 = min(x2/2, 250m))" << std::endl;
     std::cout << " - Node 2: UAV Trinh sat bay tu 0m -> 500m (v = " << uavSpeed << " m/s)" << std::endl;
-    std::cout << " - Nguong tam phu song Wi-Fi 802.11n: R = " << rangeCutoff << " m" << std::endl;
+    std::cout << " - Nguong tam phu song Wi-Fi 802.11n: R = " << g_rangeCutoff << " m" << std::endl;
     std::cout << " - Giao thuc dinh tuyen dong: AODV" << std::endl;
     std::cout << "-----------------------------------------------------------------" << std::endl;
 
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
     YansWifiChannelHelper wifiChannel;
     wifiChannel.SetPropagationDelay("ns3::ConstantSpeedPropagationDelayModel");
     wifiChannel.AddPropagationLoss("ns3::RangePropagationLossModel",
-                                  "MaxRange", DoubleValue(rangeCutoff));
+                                  "MaxRange", DoubleValue(g_rangeCutoff));
     wifiChannel.AddPropagationLoss("ns3::FriisPropagationLossModel",
                                   "Frequency", DoubleValue(2.4e9));
 

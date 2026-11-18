@@ -29,7 +29,7 @@ baseline_comparison/
 
 ---
 
-## 3. HƯỚNG DẪN THỰC THI TRÊN UBUNTU / WSL
+## 3. HƯỚNG DẪN THỰC THI TRÊN UBUNTU (MÁY ẢO VMWARE)
 
 ### Bước 1: Chạy mô phỏng Baseline trên ns-3
 ```bash
